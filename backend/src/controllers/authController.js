@@ -1,19 +1,13 @@
 import User from "../models/userModel.js";
 import bcrypt from "bcryptjs";
 import { generateToken } from "../utils/token.js";
-import { validateEmail, validatePassword } from "../utils/validate.js";
+import { validateSignUpData } from "../utils/validate.js";
+import { sendError } from "../utils/errors.js";
 
 export const signup = async (req, res) => {
 	const { fullName, email, password } = req.body;
-
-	if (!fullName || !email || !password)
-		return res.status(400).json({ error: "All fields are required" });
-
-	if (!validateEmail(email))
-		return res.status(400).json({ error: "A valid email address is required" });
-
-	if (!validatePassword(password))
-		return res.status(400).json({ error: "Password must be at least 12 characters long, contain at least one letter, one number, and one special character." });
+	const validationFailed = validateSignUpData(fullName, email, password);
+	if (validationFailed) return res.status(400).json({ error: validationFailed });
 
 	try {
 		const existingUser = await User.findOne({ email });
@@ -32,8 +26,7 @@ export const signup = async (req, res) => {
 			email: newUser.email
 		});
 	} catch (error) {
-		console.error("Error while signing up:", error.message);
-		res.status(500).json({ message: "Internal Server Error" });
+		sendError(res, error, "signup");
 	}
 };
 
@@ -58,8 +51,7 @@ export const login = async (req, res) => {
 			email: user.email
 		});
 	} catch (error) {
-		console.error("Error while logging in:", error.message);
-		res.status(500).json({ message: "Internal Server Error" });
+		sendError(res, error, "login");
 	}
 };
 
@@ -68,16 +60,15 @@ export const logout = (req, res) => {
 		res.cookie("jwt", "", { maxAge: 0 });
 		res.status(200).json({ message: "Logged out" });
 	} catch (error) {
-		console.error("Error while logging out:", error.message);
-		res.status(500).json({ message: "Internal Server Error" });
+		sendError(res, error, "logout");
 	}
 };
 
+// Check if the user is authenticated
 export const checkAuth = (req, res) => {
 	try {
 		res.status(200).json(req.user);
 	} catch (error) {
-		console.error("Error while checking authentication:", error.message);
-		res.status(500).json({ message: "Internal Server Error" });
+		sendError(res, error, "checkAuth");
 	}
 };
