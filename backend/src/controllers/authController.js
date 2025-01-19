@@ -1,12 +1,9 @@
 import User from "../models/userModel.js";
 import bcrypt from "bcryptjs";
 import { generateToken } from "../utils/token.js";
-import { connectDB } from "../utils/mongodb.js";
-import "../utils/validate.js"
 import { validateEmail, validatePassword } from "../utils/validate.js";
 
 export const signup = async (req, res) => {
-	connectDB();
 	const { fullName, email, password } = req.body;
 
 	if (!fullName || !email || !password)
@@ -20,18 +17,13 @@ export const signup = async (req, res) => {
 
 	try {
 		const existingUser = await User.findOne({ email });
-		if (existingUser)
-			return res.status(400).json({ error: "Email already exists" });
+		if (existingUser) return res.status(400).json({ error: "Email already exists" });
 
 		const hashedPassword = await bcrypt.hash(password, 10);
 
-		const newUser = new User({
-			fullName,
-			email,
-			password: hashedPassword
-		});
-
+		const newUser = new User({ fullName, email, password: hashedPassword });
 		await newUser.save();
+
 		generateToken(newUser._id, res);
 
 		res.status(201).json({
@@ -39,28 +31,24 @@ export const signup = async (req, res) => {
 			fullName: newUser.fullName,
 			email: newUser.email
 		});
-
 	} catch (error) {
-		console.log("Error while signing up", error.message);
-		res.status(500).json({ message: "Error while signing up" });
+		console.error("Error while signing up:", error.message);
+		res.status(500).json({ message: "Internal Server Error" });
 	}
-
 };
 
 export const login = async (req, res) => {
-	connectDB();
 	const { email, password } = req.body;
+
 	if (!email || !password)
 		return res.status(400).json({ error: "Email and password are required" });
 
 	try {
 		const user = await User.findOne({ email });
-		if (!user)
-			return res.status(400).json({ error: "Account not found" });
+		if (!user) return res.status(400).json({ error: "Account not found" });
 
-		const isPasswordCorrect = await bcrypt.compare(password, user.password)
-		if (!isPasswordCorrect)
-			return res.status(400).json({ error: "Invalid password" });
+		const isPasswordCorrect = await bcrypt.compare(password, user.password);
+		if (!isPasswordCorrect) return res.status(400).json({ error: "Invalid password" });
 
 		generateToken(user._id, res);
 
@@ -69,20 +57,27 @@ export const login = async (req, res) => {
 			fullName: user.fullName,
 			email: user.email
 		});
-
 	} catch (error) {
-		console.log("Error while logging in", error.message)
-		res.status(500).json({ message: "Error while logging in" });
+		console.error("Error while logging in:", error.message);
+		res.status(500).json({ message: "Internal Server Error" });
 	}
 };
 
-export const logout = async (req, res) => {
+export const logout = (req, res) => {
 	try {
-		res.cookie("jwt", "", { maxAge: 0 })
+		res.cookie("jwt", "", { maxAge: 0 });
 		res.status(200).json({ message: "Logged out" });
-		return
 	} catch (error) {
-		console.log("Error while logging out", error.message);
-		res.status(500).json({ message: "Error while logging out" });
+		console.error("Error while logging out:", error.message);
+		res.status(500).json({ message: "Internal Server Error" });
+	}
+};
+
+export const checkAuth = (req, res) => {
+	try {
+		res.status(200).json(req.user);
+	} catch (error) {
+		console.error("Error while checking authentication:", error.message);
+		res.status(500).json({ message: "Internal Server Error" });
 	}
 };
