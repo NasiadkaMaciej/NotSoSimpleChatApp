@@ -5,8 +5,10 @@ import { validateSignUpData } from "../utils/validate.js";
 import { sendError } from "../utils/errors.js";
 
 export const signup = async (req, res) => {
-	const { fullName, email, password } = req.body;
-	const validationFailed = validateSignUpData(fullName, email, password);
+
+	const { username, email, password } = req.body;
+
+	const validationFailed = validateSignUpData(username, email, password);
 	if (validationFailed) return res.status(400).json({ error: validationFailed });
 
 	try {
@@ -15,14 +17,14 @@ export const signup = async (req, res) => {
 
 		const hashedPassword = await bcrypt.hash(password, 10);
 
-		const newUser = new User({ fullName, email, password: hashedPassword });
+		const newUser = new User({ username, email, password: hashedPassword });
 		await newUser.save();
 
 		generateToken(newUser._id, res);
 
 		res.status(201).json({
 			_id: newUser._id,
-			fullName: newUser.fullName,
+			username: newUser.username,
 			email: newUser.email
 		});
 	} catch (error) {
@@ -47,7 +49,7 @@ export const login = async (req, res) => {
 
 		res.status(200).json({
 			_id: user._id,
-			fullName: user.fullName,
+			username: user.username,
 			email: user.email
 		});
 	} catch (error) {
