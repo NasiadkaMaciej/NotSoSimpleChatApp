@@ -4,7 +4,9 @@ const userSchema = new mongoose.Schema(
 	{
 		username: { type: String, required: true },
 		email: { type: String, required: true, unique: true },
-		password: { type: String, required: true }
+		password: { type: String, required: true },
+		avatarColor: { type: String, default: "#ffffff" }, // ToDo: Check if this is a valid hex color
+		// ToDo: About me?
 		// ToDo: Add friends, family, work colleagues lists
 		// ToDo: Add profile picture
 		// ToDo: Add online status

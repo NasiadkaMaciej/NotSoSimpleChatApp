@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { MessageSquare, Mail, Eye, EyeOff, Loader2, Lock } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Loader2 } from "lucide-react";
 
 import { useAuthStore } from "../store/useAuthStore";
 
@@ -8,10 +7,7 @@ import FormInput from "../components/Form/FormInput";
 import FormLayout from "../components/Form/FormLayout";
 
 const LoginPage = () => {
-	const [formData, setFormData] = useState({
-		email: "",
-		password: "",
-	});
+	const [formData, setFormData] = useState({ email: "", password: "" });
 	const { login, isLoggingIn } = useAuthStore();
 
 	const handleSubmit = async (e) => {

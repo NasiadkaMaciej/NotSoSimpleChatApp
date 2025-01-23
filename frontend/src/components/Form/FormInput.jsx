@@ -1,7 +1,7 @@
 import { Eye, EyeOff, Lock, Mail, User } from "lucide-react";
 import { useState } from "react";
 
-const FormInput = ({ type, label, placeholder, value, onChange, icon }) => {
+const FormInput = ({ type, label, placeholder, value, onChange, icon, disabled }) => {
 	const [showPassword, setShowPassword] = useState(false);
 	const inputType = type === "password" && showPassword ? "text" : type;
 	const iconClass = "size-5 text-base-content/40";
@@ -24,6 +24,7 @@ const FormInput = ({ type, label, placeholder, value, onChange, icon }) => {
 					placeholder={placeholder}
 					value={value}
 					onChange={onChange}
+					disabled={disabled}
 				/>
 				{type === "password" && (
 					<button

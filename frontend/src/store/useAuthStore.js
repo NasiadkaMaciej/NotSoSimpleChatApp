@@ -12,6 +12,7 @@ export const useAuthStore = create((updateState) => ({
 	authUser: null,
 	isSigningUp: false,
 	isCheckingAuth: true,
+	isUpdatingProfile: false,
 
 	checkAuth: async () => {
 		// If token is not set, do not try to authenticate
@@ -61,6 +62,19 @@ export const useAuthStore = create((updateState) => ({
 			toast.success("Logged out successfully");
 		} catch (error) {
 			displayError(error);
+		}
+	},
+
+	updateProfile: async (formData) => {
+		updateState({ isUpdatingProfile: true });
+		try {
+			const response = await axiosInstance.put('/auth/profile', formData);
+			updateState({ authUser: response.data });
+			toast.success("Profile updated successfully");
+		} catch (error) {
+			displayError(error);
+		} finally {
+			updateState({ isUpdatingProfile: false });
 		}
 	}
 

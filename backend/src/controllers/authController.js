@@ -25,7 +25,8 @@ export const signup = async (req, res) => {
 		res.status(201).json({
 			_id: newUser._id,
 			username: newUser.username,
-			email: newUser.email
+			email: newUser.email,
+			avatarColor: newUser.avatarColor
 		});
 	} catch (error) {
 		sendError(res, error, "signup");
@@ -50,7 +51,8 @@ export const login = async (req, res) => {
 		res.status(200).json({
 			_id: user._id,
 			username: user.username,
-			email: user.email
+			email: user.email,
+			avatarColor: user.avatarColor
 		});
 	} catch (error) {
 		sendError(res, error, "login");
@@ -72,5 +74,26 @@ export const checkAuth = (req, res) => {
 		res.status(200).json(req.user);
 	} catch (error) {
 		sendError(res, error, "checkAuth");
+	}
+};
+
+export const updateProfile = async (req, res) => {
+	const { avatarColor } = req.body;
+
+	try {
+		const user = await User.findById(req.user._id);
+		if (!user) return res.status(404).json({ error: "User not found" });
+
+		user.avatarColor = avatarColor || user.avatarColor;
+		await user.save();
+
+		res.status(200).json({
+			_id: user._id,
+			username: user.username,
+			email: user.email,
+			avatarColor: user.avatarColor
+		});
+	} catch (error) {
+		sendError(res, error, "updateProfile");
 	}
 };
