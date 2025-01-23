@@ -3,7 +3,7 @@ import { axiosInstance } from '../utils/axios';
 import toast from 'react-hot-toast';
 
 const displayError = (error) => {
-	const message = error.response?.data?.message || error.message;
+	const message = error.response?.data?.error || error.message;
 	toast.error(message);
 	console.error("Error: ", message, error);
 };
@@ -43,5 +43,25 @@ export const useAuthStore = create((updateState) => ({
 			updateState({ isSigningUp: false });
 		}
 	},
+
+	login: async (formData) => {
+		try {
+			const response = await axiosInstance.post('/auth/login', formData);
+			updateState({ authUser: response.data });
+			toast.success("Logged in successfully");
+		} catch (error) {
+			displayError(error);
+		}
+	},
+
+	logout: async () => {
+		try {
+			await axiosInstance.post('/auth/logout');
+			updateState({ authUser: null });
+			toast.success("Logged out successfully");
+		} catch (error) {
+			displayError(error);
+		}
+	}
 
 }));

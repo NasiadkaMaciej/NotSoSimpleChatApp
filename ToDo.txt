@@ -2,3 +2,4 @@ Frontend
 Backend tests 
 Pasword Reset? 
 Group Chats? 
+Email verification
