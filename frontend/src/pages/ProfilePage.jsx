@@ -44,7 +44,7 @@ const ProfilePage = () => {
 								/>
 							</label>
 						</div>
-						<p className="text-sm text-zinc-400">
+						<p className="text-sm">
 							{isUpdatingProfile ? "Updating..." : "Click the pipette icon to update your avatar color"}
 						</p>
 					</div>
