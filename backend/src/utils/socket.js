@@ -5,7 +5,12 @@ import express from "express";
 const app = express();
 const server = http.createServer(app);
 
-const io = new Server(server)
+const io = new Server(server, {
+	cors: {
+		origin: ['http://127.0.0.1:3008', 'front.nasiadka.pl'],
+		credentials: true,
+	}
+});
 
 export function getReceiverSocketId(userId) {
 	return userSocketMap[userId];

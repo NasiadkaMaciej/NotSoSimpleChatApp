@@ -1,6 +1,6 @@
 # Not so simple Chat App
 
-Welcome to the Not so simple Chat App! This is a real-time chat application built with Node.js, Express, MongoDB, and Socket.io.
+Welcome to the Not so simple Chat App! This is a real-time chat application built with Node.js, Express, MongoDB, and Socket.io. Feel free to to visit and check the website! [front.nasiadka.pl](https://front.nasiadka.pl/)
 
 ## Features
 
@@ -39,3 +39,25 @@ The backend is built with Node.js, Express, and MongoDB.
 | **Cors**           | For enabling Cross-Origin Resource Sharing.      |
 | **Cookie-Parser**  | For parsing cookies.                             |
 | **Dotenv**         | For loading environment variables from a `.env` file. |
+
+
+## Build Instructions
+
+### Frontend
+
+To build the frontend, navigate to the `frontend` directory and run the following command:
+
+```sh
+npm run build
+```
+
+Built website will be in folder "dist"
+
+
+### Backend
+
+To start the backend server, navigate to the `backend` directory and run the following command:
+
+```sh
+node index.js
+```

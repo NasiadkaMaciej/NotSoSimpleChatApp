@@ -14,7 +14,7 @@ const port = process.env.PORT;
 
 app.use(express.json());
 app.use(cors({
-	origin: "http://127.0.0.1:3008",
+	origin: ['http://127.0.0.1:3008', 'front.nasiadka.pl'],
 	credentials: true,
 }));
 app.use(cookieParser());
