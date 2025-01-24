@@ -4,7 +4,7 @@ import { Loader } from "lucide-react";
 import { Toaster } from 'react-hot-toast';
 
 import NavBar from './components/NavBar';
-import HomePage from './pages/HomePage';
+import ChatPage from './pages/ChatPage';
 import SignUpPage from './pages/SignUpPage';
 import LoginPage from './pages/LoginPage';
 import ProfilePage from './pages/ProfilePage';
@@ -40,7 +40,7 @@ const App = () => {
 		<div>
 			<NavBar />
 			<Routes>
-				<Route path='/' element={authUser ? <HomePage /> : <Navigate to="/login" />} />
+				<Route path='/' element={authUser ? <ChatPage /> : <Navigate to="/login" />} />
 				<Route path='/signup' element={!authUser ? <SignUpPage /> : <Navigate to="/" />} />
 				<Route path='/login' element={!authUser ? <LoginPage /> : <Navigate to="/" />} />
 				<Route path='/profile' element={authUser ? <ProfilePage /> : <Navigate to="/login" />} />

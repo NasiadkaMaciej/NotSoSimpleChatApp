@@ -10,7 +10,7 @@ const Navbar = () => {
 	const { logout, authUser } = useAuthStore();
 	const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-	useEffect(() => {
+	useEffect(() => { // Load theme from local storage
 		const savedTheme = localStorage.getItem('theme');
 		if (savedTheme) {
 			document.documentElement.setAttribute('data-theme', savedTheme);
@@ -18,11 +18,19 @@ const Navbar = () => {
 		} else localStorage.setItem('theme', theme);
 	}, [theme]);
 
-	const handleThemeChange = (theme) => {
+	const handleThemeChange = (theme) => { // Change theme
 		document.documentElement.setAttribute('data-theme', theme);
 		localStorage.setItem('theme', theme);
 		setIsDropdownOpen(false);
 	};
+
+	useEffect(() => { // Close dropdown when clicked outside
+		const handleClickOutside = (event) => {
+			if (!event.target.closest('.dropdown')) setIsDropdownOpen(false);
+		};
+		document.addEventListener('mousedown', handleClickOutside);
+		return () => { document.removeEventListener('mousedown', handleClickOutside) };
+	}, []);
 
 	const renderThemePreview = (theme) => {
 		return (
