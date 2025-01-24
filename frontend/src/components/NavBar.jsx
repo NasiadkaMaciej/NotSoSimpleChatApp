@@ -21,16 +21,9 @@ const Navbar = () => {
 	const handleThemeChange = (theme) => { // Change theme
 		document.documentElement.setAttribute('data-theme', theme);
 		localStorage.setItem('theme', theme);
+		setTheme(theme); // Update the state with the new theme
 		setIsDropdownOpen(false);
 	};
-
-	useEffect(() => { // Close dropdown when clicked outside
-		const handleClickOutside = (event) => {
-			if (!event.target.closest('.dropdown')) setIsDropdownOpen(false);
-		};
-		document.addEventListener('mousedown', handleClickOutside);
-		return () => { document.removeEventListener('mousedown', handleClickOutside) };
-	}, []);
 
 	const renderThemePreview = (theme) => {
 		return (

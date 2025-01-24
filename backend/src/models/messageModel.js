@@ -14,10 +14,19 @@ const messageSchema = new mongoose.Schema(
 		},
 		text: {
 			type: String,
+			required: true,
+			trim: true
+		},
+		readAt: {
+			type: Date,
+			default: null
+		},
+		status: {
+			type: String,
+			default: "sent",
+			enum: ["sent", "delivered", "read"]
 		}
-		// ToDo: Read status?
 	},
-	// Add createdAt and updatedAt fields
 	{ timestamps: true }
 );
 

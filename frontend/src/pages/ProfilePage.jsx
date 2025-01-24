@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useAuthStore } from "../store/useAuthStore";
 import { Pipette, User } from "lucide-react";
 
@@ -7,11 +7,29 @@ import FormInput from "../components/Form/FormInput";
 const ProfilePage = () => {
 	const { authUser, isUpdatingProfile, updateProfile } = useAuthStore();
 	const [selectedColor, setSelectedColor] = useState(authUser.avatarColor || "#ffffff");
+	const [aboutMe, setAboutMe] = useState(authUser.aboutMe || "");
+	const timeoutRef = useRef(null);
+
+	useEffect(() => {
+		setSelectedColor(authUser.avatarColor || "#ffffff");
+		setAboutMe(authUser.aboutMe || "");
+	}, [authUser]);
 
 	const handleColorChange = async (e) => {
 		const color = e.target.value;
 		setSelectedColor(color);
-		await updateProfile({ avatarColor: color });
+		await updateProfile({ avatarColor: color, aboutMe: aboutMe });
+	};
+
+	// Save about me text after 2 seconds of inactivity
+	const handleAboutMeChange = (e) => {
+		clearTimeout(timeoutRef.current);
+		timeoutRef.current = setTimeout(async () => {
+			const aboutMeText = e.target.value;
+			setAboutMe(aboutMeText);
+			await updateProfile({ avatarColor: selectedColor, aboutMe: aboutMeText });
+		}, 2000);
+		setAboutMe(e.target.value);
 	};
 
 	return (
@@ -45,8 +63,15 @@ const ProfilePage = () => {
 							</label>
 						</div>
 						<p className="text-sm">
-							{isUpdatingProfile ? "Updating..." : "Click the pipette icon to update your avatar color"}
+							{isUpdatingProfile ? "Updating..." : "Select your avatar color"}
 						</p>
+						<textarea
+							className="textarea textarea-bordered w-full"
+							placeholder="Simply say something about yourself"
+							value={aboutMe}
+							onChange={handleAboutMeChange}
+							disabled={isUpdatingProfile}
+						></textarea>
 					</div>
 
 					<div className="space-y-6">

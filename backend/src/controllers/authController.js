@@ -78,20 +78,22 @@ export const checkAuth = (req, res) => {
 };
 
 export const updateProfile = async (req, res) => {
-	const { avatarColor } = req.body;
+	const { avatarColor, aboutMe } = req.body;
 
 	try {
 		const user = await User.findById(req.user._id);
 		if (!user) return res.status(404).json({ error: "User not found" });
 
 		user.avatarColor = avatarColor || user.avatarColor;
+		user.aboutMe = aboutMe || user.aboutMe;
 		await user.save();
 
 		res.status(200).json({
 			_id: user._id,
 			username: user.username,
 			email: user.email,
-			avatarColor: user.avatarColor
+			avatarColor: user.avatarColor,
+			aboutMe: user.aboutMe
 		});
 	} catch (error) {
 		sendError(res, error, "updateProfile");
