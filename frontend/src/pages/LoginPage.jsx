@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Loader2 } from "lucide-react";
+import { Loader } from "lucide-react";
 
 import { useAuthStore } from "../store/useAuthStore";
 
@@ -15,6 +15,11 @@ const LoginPage = () => {
 		login(formData);
 	};
 
+	const handleChange = (e) => {
+		const { name, value } = e.target;
+		setFormData((prevData) => ({ ...prevData, [name]: value }));
+	};
+
 	return (
 		<FormLayout
 			title="Welcome Back"
@@ -24,26 +29,22 @@ const LoginPage = () => {
 			linkDescription="Don't have an account? Simply"
 		>
 			<form onSubmit={handleSubmit} className="space-y-6">
-				<FormInput
-					type="text"
-					label="Email"
-					placeholder="simple@email.com"
-					value={formData.email}
-					onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-					icon="mail"
-				/>
-				<FormInput
-					type="password"
-					label="Password"
-					placeholder="••••••••"
-					value={formData.password}
-					onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-					icon="lock"
-				/>
+				{["email", "password"].map((field, index) => (
+					<FormInput
+						key={index}
+						type={field === "password" ? "password" : "text"}
+						label={field.charAt(0).toUpperCase() + field.slice(1)}
+						placeholder={field === "email" ? "simple@email.com" : "••••••••"}
+						value={formData[field]}
+						onChange={handleChange}
+						name={field}
+						icon={field === "password" ? "lock" : "mail"}
+					/>
+				))}
 				<button type="submit" className="btn btn-primary w-full" disabled={isLoggingIn}>
 					{isLoggingIn ? (
 						<>
-							<Loader2 className="h-5 w-5 animate-spin" />
+							<Loader className="h-5 w-5 animate-spin" />
 							Loading...
 						</>
 					) : (

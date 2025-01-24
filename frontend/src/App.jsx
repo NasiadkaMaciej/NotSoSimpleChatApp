@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
 import { Loader } from "lucide-react";
 import { Toaster } from 'react-hot-toast';
@@ -12,6 +12,16 @@ import { useAuthStore } from './store/useAuthStore';
 
 const App = () => {
 	const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
+
+	function NotFoundRedirect() { // Crazy way to fix react 404 error handling
+		const location = useLocation();
+		useEffect(() => {
+			if (location.pathname !== '/404.php')
+				window.location.href = 'https://front.nasiadka.pl/404.php';
+		}, [location.pathname]);
+
+		return null;
+	}
 
 	// Check if user is authenticated
 	useEffect(() => { checkAuth(); }, [checkAuth]);
@@ -34,6 +44,7 @@ const App = () => {
 				<Route path='/signup' element={!authUser ? <SignUpPage /> : <Navigate to="/" />} />
 				<Route path='/login' element={!authUser ? <LoginPage /> : <Navigate to="/" />} />
 				<Route path='/profile' element={authUser ? <ProfilePage /> : <Navigate to="/login" />} />
+				<Route path="*" element={<NotFoundRedirect />} />
 			</Routes>
 			<Toaster /> { /* Makes all toasts appear in the app */}
 		</div>

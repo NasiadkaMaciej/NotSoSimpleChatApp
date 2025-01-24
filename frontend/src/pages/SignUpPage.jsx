@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Loader2 } from "lucide-react";
+import { Loader } from "lucide-react";
 import { toast } from "react-hot-toast";
 
 import { validateSignUpData } from "../../../backend/src/utils/validate";
@@ -66,7 +66,7 @@ const SignUpPage = () => {
 				<button type="submit" className="btn btn-primary w-full" disabled={isSigningUp}>
 					{isSigningUp ? (
 						<>
-							<Loader2 className="size-5 animate-spin" />
+							<Loader className="size-5 animate-spin" />
 							Loading...
 						</>
 					) : (
