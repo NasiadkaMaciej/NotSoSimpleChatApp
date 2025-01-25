@@ -3,6 +3,7 @@ import { useAuthStore } from "../store/useAuthStore";
 import { Pipette, User } from "lucide-react";
 
 import FormInput from "../components/Form/FormInput";
+import Avatar from "../components/Avatar";
 
 const ProfilePage = () => {
 	const { authUser, isUpdatingProfile, updateProfile } = useAuthStore();
@@ -49,7 +50,7 @@ const ProfilePage = () => {
 
 					<div className="flex flex-col items-center gap-4">
 						<div className="relative">
-							<User className="size-40 rounded-full object-cover border-4 text-base-200" style={{ color: selectedColor }} />
+						<Avatar color={selectedColor} size="40" />
 							<label
 								htmlFor="color-picker"
 								className={`absolute bottom-0 right-0 bg-base-content hover:scale-105 p-2 rounded-full cursor-pointer transition-all duration-200 ${isUpdatingProfile ? "animate-pulse pointer-events-none" : ""}`}

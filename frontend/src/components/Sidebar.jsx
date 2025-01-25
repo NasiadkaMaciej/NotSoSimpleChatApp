@@ -3,35 +3,29 @@
 
 import { useEffect } from "react";
 import { useChatStore } from "../store/useChatStore";
-import { Users, User, Loader } from "lucide-react";
+import { Users, Loader } from "lucide-react";
+import UserItem from "./UserItem";
 
 const Sidebar = () => {
 	const { getUsers, users, selectedUser, setSelectedUser, isUsersLoading } = useChatStore();
 
 	useEffect(() => {
 		getUsers();
-		// Get users list every 30 seconds
+		// Set up interval for user list update
 		// ToDo: Socket.io for real-time updates?
 		// ToDo: Cache?
-		const interval = setInterval(() => {
-			getUsers();
-		}, 30000);
+		const interval = setInterval(getUsers, 10 * 1000);
 		return () => clearInterval(interval);
 	}, []);
 
 	// If no users are found
-	if (users.length === 0) {
-		return isUsersLoading ? (
+	if (users.length === 0)
+		return (
 			<aside className="h-full w-20 lg:w-72 border-r border-base-300 flex flex-col items-center justify-center">
-				<Loader className="size-6 animate-spin" />
-				<span className="mt-2 text-sm">Loading contacts...</span>
-			</aside>
-		) : (
-			<aside className="h-full w-20 lg:w-72 border-r border-base-300 flex flex-col items-center justify-center">
-				<span className="text-sm">No contacts found</span>
+				{isUsersLoading ? (<> <Loader className="size-6 animate-spin" /> <span className="mt-2 text-sm">Loading contacts...</span> </>
+				) : <span className="text-sm">No contacts found</span>}
 			</aside>
 		)
-	}
 
 	return (
 		<aside className="h-full w-20 lg:w-72 border-r border-base-300 flex flex-col transition-all duration-200">
@@ -50,29 +44,12 @@ const Sidebar = () => {
 				) : (
 					// Map through users and create buttons for selection
 					users.map((user) => (
-						<button
+						<UserItem
 							key={user._id}
-							onClick={() => setSelectedUser(user)}
-							className={`
-								w-full p-3 flex items-center gap-3
-								hover:bg-base-300 transition-colors
-								${selectedUser?._id === user._id ? "bg-base-300 ring-1 ring-base-300" : ""}
-							`}
-						>
-							{/* User avatar */}
-							<div className="relative mx-auto lg:mx-0">
-								<div
-									className="size-12 rounded-full flex items-center justify-center bg-primary/10"
-								>
-									<User className="size-8" style={{ color: user.avatarColor || "#ffffff" }} />
-								</div>
-							</div>
-
-							{/* User name - only visible on larger screens */}
-							<div className="hidden lg:block text-left min-w-0">
-								<div className="font-medium truncate">{user.username}</div>
-							</div>
-						</button>
+							user={user}
+							isSelected={selectedUser?._id === user._id}
+							onClick={setSelectedUser}
+						/>
 					))
 				)}
 			</div>
