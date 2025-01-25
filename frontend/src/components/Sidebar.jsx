@@ -11,6 +11,8 @@ const Sidebar = () => {
 	useEffect(() => {
 		getUsers();
 		// Get users list every 30 seconds
+		// ToDo: Socket.io for real-time updates?
+		// ToDo: Cache?
 		const interval = setInterval(() => {
 			getUsers();
 		}, 30000);

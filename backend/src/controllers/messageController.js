@@ -11,10 +11,10 @@ export const getUsers = async (req, res) => {
 		const filteredUsers = await User.find({ _id: { $ne: req.user._id } }).select("-password");
 		// Prevent caching list of users, so that new users are displayed
 		res.set({
-            'Cache-Control': 'no-cache, no-store, must-revalidate',
-            'Pragma': 'no-cache',
-            'Expires': '0'
-        });
+			'Cache-Control': 'no-cache, no-store, must-revalidate',
+			'Pragma': 'no-cache',
+			'Expires': '0'
+		});
 		res.status(200).json(filteredUsers);
 	} catch (error) {
 		sendError(res, error, "getUsers");
@@ -23,14 +23,15 @@ export const getUsers = async (req, res) => {
 
 export const getMessages = async (req, res) => {
 	try {
-		const { id: receiver } = req.params;
-		const sender = req.user._id;
+		const { id: receiverId } = req.params;
+		const senderId = req.user._id;
 
-		// Get messages between sender and receiver
 		const messages = await Message.find({
-			$or: [{ senderId: sender, receiverId: receiver },
-			{ senderId: receiver, receiverId: sender }]
-		});
+			$or: [
+				{ senderId, receiverId },
+				{ senderId: receiverId, receiverId: senderId }
+			]
+		}).sort({ createdAt: 1 });
 
 		res.status(200).json(messages);
 	} catch (error) {
@@ -44,14 +45,23 @@ export const sendMessage = async (req, res) => {
 		const { id: receiverId } = req.params;
 		const senderId = req.user._id;
 
-		const newMessage = new Message({ senderId, receiverId, text });
-		// Save the message to the database
+		const newMessage = new Message({
+			senderId,
+			receiverId,
+			text
+		});
+
 		await newMessage.save();
 
-		// Emit the new message to the receiver
+		// Emit the message to the receiver
 		const receiverSocketId = getReceiverSocketId(receiverId);
-		if (receiverSocketId)
-			io.to(receiverSocketId).emit("newMessage", newMessage);
+		if (receiverSocketId) {
+			io.to(receiverSocketId).emit("newMessage", {
+				senderId,
+				receiverId,
+				text
+			});
+		}
 
 		res.status(201).json(newMessage);
 	} catch (error) {

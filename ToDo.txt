@@ -5,3 +5,14 @@ Group Chats?
 Email verification
 Toasts should use daisyUI theme
 Friends list 
+User avatars next to bubbles
+ENV for ports
+Check ports on server
+Make users lists not refresh so much, add some cache or memo
+Make error logging more uniform 
+Add option to chat with AI 
+Make styles more uniform 
+Clean console.logs 
+Add isTyping and show if user isTyping? 
+Attach nginx config? 
+No animation when loading new message? 

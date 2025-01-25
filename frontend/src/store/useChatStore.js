@@ -14,7 +14,9 @@ const displayError = (error) => {
 export const useChatStore = create((set, get) => ({
 	users: [],
 	selectedUser: null,
+	messages: [],
 	isUsersLoading: false,
+	isMessagesLoading: false,
 
 	getUsers: async () => {
 		set({ isUsersLoading: true });
@@ -36,5 +38,33 @@ export const useChatStore = create((set, get) => ({
 		}
 	},
 
-	setSelectedUser: (selectedUser) => set({ selectedUser }),
+	setSelectedUser: (selectedUser) => {
+		set({ selectedUser });
+		if (selectedUser) {
+			get().getMessages(selectedUser._id);
+		}
+	},
+
+	// ToDo: Cache messages to not load when switching
+	getMessages: async (userId) => {
+		set({ isMessagesLoading: true });
+		try {
+			const res = await axiosInstance.get(`/message/${userId}`);
+			set({ messages: res.data });
+		} catch (error) {
+			displayError(error);
+			set({ messages: [] });
+		} finally {
+			set({ isMessagesLoading: false });
+		}
+	},
+	sendMessage: async (text) => {
+		const { selectedUser, messages } = get();
+		try {
+			const res = await axiosInstance.post(`/message/send/${selectedUser._id}`, { text });
+			set({ messages: [...messages, res.data] });
+		} catch (error) {
+			displayError(error);
+		}
+	}
 }));

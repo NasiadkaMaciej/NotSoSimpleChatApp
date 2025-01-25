@@ -1,26 +1,30 @@
-import http from "http";
 import { Server } from "socket.io";
 import express from "express";
+import http from "http";
+import dotenv from "dotenv";
 
-const app = express();
-const server = http.createServer(app);
+const socketApp = express();
+const socketServer = http.createServer(socketApp);
 
-const io = new Server(server, {
+dotenv.config();
+const apiPort = process.env.API_PORT || 3005;
+
+const io = new Server(socketServer, {
 	cors: {
-		origin: ['http://127.0.0.1:3008', 'front.nasiadka.pl'],
+		// ToDo: Is localhost needed?
+		origin: [`http://127.0.0.1:${apiPort}`, 'https://front.nasiadka.pl'],
 		credentials: true,
-	}
+	},
+	path: '/socket.io/',
+	// ToDo: Is this needed?
+	transports: ['websocket', 'polling']
 });
-
-export function getReceiverSocketId(userId) {
-	return userSocketMap[userId];
-}
 
 // userID -> socketID
 const userSocketMap = {};
 
 io.on("connection", (socket) => {
-	console.log("A user connected", socket.id);
+	console.log("User connected", socket.id);
 
 	const userId = socket.handshake.query.userId;
 	if (userId) userSocketMap[userId] = socket.id;
@@ -28,10 +32,14 @@ io.on("connection", (socket) => {
 	io.emit("getOnlineUsers", Object.keys(userSocketMap));
 
 	socket.on("disconnect", () => {
-		console.log("A user disconnected", socket.id);
+		console.log("User disconnected", socket.id);
 		delete userSocketMap[userId];
 		io.emit("getOnlineUsers", Object.keys(userSocketMap));
 	});
 });
 
-export { io, app, server };
+export function getReceiverSocketId(userId) {
+	return userSocketMap[userId];
+}
+
+export { io, socketServer };
