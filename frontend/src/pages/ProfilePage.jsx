@@ -50,7 +50,7 @@ const ProfilePage = () => {
 
 					<div className="flex flex-col items-center gap-4">
 						<div className="relative">
-						<Avatar color={selectedColor} size="40" />
+						<Avatar color={selectedColor} size="40" overrideTailwind={true} />
 							<label
 								htmlFor="color-picker"
 								className={`absolute bottom-0 right-0 bg-base-content hover:scale-105 p-2 rounded-full cursor-pointer transition-all duration-200 ${isUpdatingProfile ? "animate-pulse pointer-events-none" : ""}`}
