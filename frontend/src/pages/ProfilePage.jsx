@@ -15,10 +15,13 @@ const ProfilePage = () => {
 		setAboutMe(authUser.aboutMe || "");
 	}, [authUser]);
 
-	const handleColorChange = async (e) => {
+	const handleColorChange = (e) => {
 		const color = e.target.value;
 		setSelectedColor(color);
-		await updateProfile({ avatarColor: color, aboutMe: aboutMe });
+		clearTimeout(timeoutRef.current);
+		timeoutRef.current = setTimeout(async () => {
+			await updateProfile({ avatarColor: color, aboutMe: aboutMe });
+		}, 2000);
 	};
 
 	// Save about me text after 2 seconds of inactivity
@@ -52,10 +55,11 @@ const ProfilePage = () => {
 								className={`absolute bottom-0 right-0 bg-base-content hover:scale-105 p-2 rounded-full cursor-pointer transition-all duration-200 ${isUpdatingProfile ? "animate-pulse pointer-events-none" : ""}`}
 							>
 								<Pipette className="w-5 h-5 text-base-200" />
+								{ /* ToDo: Place it better */}
 								<input
 									type="color"
 									id="color-picker"
-									className="hidden"
+									className="hidden absolute"
 									value={selectedColor}
 									onChange={handleColorChange}
 									disabled={isUpdatingProfile}
@@ -89,6 +93,7 @@ const ProfilePage = () => {
 							</div>
 							<div className="flex items-center justify-between py-2">
 								<span>Account Status</span>
+								{ /* ToDo: Set active status */}
 								<span className="text-green-500">Active</span>
 							</div>
 						</div>

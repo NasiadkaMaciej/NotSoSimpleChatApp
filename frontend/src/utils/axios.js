@@ -4,6 +4,10 @@ export const axiosInstance = axios.create({
 	baseURL: 'https://front.nasiadka.pl/api',
 	withCredentials: true,
 	headers: {
-        'Content-Type': 'application/json'
-    }
+		// Ensure no cache to prevent users list being stuck
+		'Content-Type': 'application/json',
+		'Cache-Control': 'no-cache',
+		'Pragma': 'no-cache',
+		'Expires': '0'
+	}
 });

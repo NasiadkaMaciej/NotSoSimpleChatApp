@@ -4,14 +4,20 @@ import Message from "../models/messageModel.js";
 import { getReceiverSocketId, io } from "../utils/socket.js";
 import { sendError } from "../utils/errors.js";
 
-export const getUsersForSidebar = async (req, res) => {
+export const getUsers = async (req, res) => {
 	// ToDo: Add friends, family, work colleagues lists
 	try {
 		// Do not display logged in user
 		const filteredUsers = await User.find({ _id: { $ne: req.user._id } }).select("-password");
+		// Prevent caching list of users, so that new users are displayed
+		res.set({
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0'
+        });
 		res.status(200).json(filteredUsers);
 	} catch (error) {
-		sendError(res, error, "getUsersForSidebar");
+		sendError(res, error, "getUsers");
 	}
 };
 

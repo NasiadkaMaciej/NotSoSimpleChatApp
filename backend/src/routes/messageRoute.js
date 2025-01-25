@@ -1,11 +1,11 @@
 import express from "express";
 import { authenticateUser } from "../middleware/authMiddleware.js";
-import { getMessages, getUsersForSidebar, sendMessage } from "../controllers/messageController.js";
+import { getMessages, getUsers, sendMessage } from "../controllers/messageController.js";
 
 const router = express.Router();
 
 // Get users for the sidebar
-router.get("/users", authenticateUser, getUsersForSidebar);
+router.get("/users", authenticateUser, getUsers);
 // Get messages between the logged in user and another user
 router.get("/:id", authenticateUser, getMessages);
 // Send a message to another user

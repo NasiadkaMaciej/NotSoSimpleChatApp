@@ -4,3 +4,4 @@ Pasword Reset?
 Group Chats? 
 Email verification
 Toasts should use daisyUI theme
+Friends list 
