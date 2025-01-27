@@ -1,15 +1,18 @@
 import { useState, useEffect, useRef } from "react";
-import { Send, Smile } from "lucide-react";
-import data from '@emoji-mart/data'
-import Picker from '@emoji-mart/react'
+import { Send, Smile, Image as ImageIcon, X } from "lucide-react";
+import data from '@emoji-mart/data';
+import Picker from '@emoji-mart/react';
 
 import { useChatStore } from "../store/useChatStore";
 
 const MessageInput = () => {
 	const { selectedUser, sendMessage } = useChatStore();
 	const [text, setText] = useState("");
+	const [image, setImage] = useState(null);
+	const [imagePreview, setImagePreview] = useState(null);
 	const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 	const inputRef = useRef(null);
+	const imageInputRef = useRef(null);
 	const pickerRef = useRef(null);
 
 	// Close emoji picker
@@ -22,6 +25,21 @@ const MessageInput = () => {
 		return () => document.removeEventListener('mousedown', handleClickOutside);
 	}, []);
 
+	const handleImageSelect = (e) => {
+		const file = e.target.files[0];
+		if (file) {
+			if (file.size > 5242880) { // 50MB
+				toast.error("Image size should be less than 50MB");
+				return;
+			}
+			const reader = new FileReader();
+			reader.onloadend = () => {
+				setImage(reader.result);
+				setImagePreview(URL.createObjectURL(file));
+			};
+			reader.readAsDataURL(file);
+		}
+	};
 	// Focus on input after selecting a user
 	useEffect(() => {
 		if (selectedUser && inputRef.current)
@@ -31,13 +49,25 @@ const MessageInput = () => {
 	const handleSendMessage = async (e) => {
 		e.preventDefault();
 		const trimmedText = text.trim();
-		if (!trimmedText || !selectedUser) return;
+		if ((!trimmedText && !image) || !selectedUser) return;
 
 		try {
-			await sendMessage(convertTextWithEmojis(trimmedText));
+			if (image) {
+				await sendMessage(null, image);
+				setImage(null);
+				setImagePreview(null);
+			} else await sendMessage(convertTextWithEmojis(trimmedText));
 			setText("");
 		} catch (error) {
 			console.error("Failed to send message:", error);
+		}
+	};
+
+	const clearImage = () => {
+		setImage(null);
+		setImagePreview(null);
+		if (imageInputRef.current) {
+			imageInputRef.current.value = '';
 		}
 	};
 
@@ -47,6 +77,7 @@ const MessageInput = () => {
 		inputRef.current?.focus();
 	};
 
+	// ToDo: Change name to: renderText?
 	const convertTextWithEmojis = (text) => {
 		const emojiMap = { // When user types emoji instead of choosing it from the picker
 			':)': '😊', ':-)': '😊', ':D': '😃', ':-D': '😃', ':(': '😞', ':-(': '😞',
@@ -58,8 +89,25 @@ const MessageInput = () => {
 
 	return (
 		<div className="p-4 w-full relative">
+			{imagePreview && (
+				<div className="absolute bottom-full left-0 p-4 w-full">
+					<div className="relative inline-block">
+						<img
+							src={imagePreview}
+							alt="Preview"
+							className="max-h-60 rounded-lg shadow-lg"
+						/>
+						<button
+							onClick={clearImage}
+							className="absolute -top-2 -right-2 btn btn-circle btn-error btn-xs"
+						>
+							<X size={14} />
+						</button>
+					</div>
+				</div>
+			)}
 			<form onSubmit={handleSendMessage} className="flex items-center gap-2">
-				<div className="relative">
+				<div className="relative flex gap-2">
 					<button
 						type="button"
 						className="btn btn-circle btn-sm"
@@ -67,24 +115,26 @@ const MessageInput = () => {
 					>
 						<Smile size={20} />
 					</button>
+					<button
+						type="button"
+						className="btn btn-circle btn-sm"
+						onClick={() => imageInputRef.current?.click()}
+					>
+						<ImageIcon size={20} />
+					</button>
+					<input
+						type="file"
+						ref={imageInputRef}
+						className="hidden"
+						accept="image/*"
+						onChange={handleImageSelect}
+					/>
 					{showEmojiPicker && (
-						<div
-							ref={pickerRef}
-							className="absolute bottom-12 left-0 z-50"
-						>
+						<div ref={pickerRef} className="absolute bottom-12 left-0 z-50">
 							<Picker
 								data={data}
 								onEmojiSelect={handleEmojiSelect}
-								theme={(() => {
-									{ /* Convert DaisyUI themes to emoji-picker theme */ }
-									const darkThemes = [
-										'dark', 'synthwave', 'cyberpunk', 'halloween',
-										'forest', 'black', 'luxury', 'business',
-										'dracula', 'nigth', 'coffee', 'dim', 'sunset'
-									];
-									const currentTheme = localStorage.getItem('theme');
-									return darkThemes.includes(currentTheme) ? 'dark' : 'light';
-								})()}
+								theme={localStorage.getItem('theme')}
 							/>
 						</div>
 					)}
@@ -96,12 +146,12 @@ const MessageInput = () => {
 					placeholder={selectedUser ? "Type a message..." : "Select a contact to start chatting"}
 					value={text}
 					onChange={(e) => setText(e.target.value)}
-					disabled={!selectedUser}
+					disabled={!selectedUser || image}
 				/>
 				<button
 					type="submit"
 					className="btn btn-primary btn-sm btn-circle size-12 transition-all hover:scale-105"
-					disabled={!text.trim() || !selectedUser}
+					disabled={(!text.trim() && !image) || !selectedUser}
 				>
 					<Send size={20} />
 				</button>

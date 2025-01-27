@@ -16,3 +16,4 @@ Clean console.logs
 Add isTyping and show if user isTyping? 
 Attach nginx config? 
 No animation when loading new message? 
+aboutMe length limit 

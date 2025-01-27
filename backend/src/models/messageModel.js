@@ -12,10 +12,19 @@ const messageSchema = new mongoose.Schema(
 			ref: "User",
 			required: true,
 		},
+		type: {
+			type: String,
+			enum: ['text', 'image'],
+			default: 'text'
+		},
 		text: {
 			type: String,
-			required: true,
+			required: function () { return this.type === 'text'; },
 			trim: true
+		},
+		image: {
+			type: String,
+			required: function () { return this.type === 'image'; }
 		},
 		readAt: {
 			type: Date,

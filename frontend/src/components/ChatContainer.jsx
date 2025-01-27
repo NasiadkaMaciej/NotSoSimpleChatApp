@@ -6,36 +6,7 @@ import ChatHeader from "./ChatHeader";
 import MessageInput from "./MessageInput";
 import UserProfile from "./UserProfile";
 import SearchBar from "./SearchBar";
-
-const MessageBubble = ({ message, isOwnMessage, searchTerm, isHighlighted }) => {
-	// Highlight matching text
-	const getHighlightedText = (text, searchTerm) => {
-		if (!searchTerm) return text;
-
-		const parts = text.split(new RegExp(`(${searchTerm})`, 'gi'));
-		return (
-			<span>
-				{parts.map((part, i) =>
-					part.toLowerCase() === searchTerm.toLowerCase() ? (
-						<mark key={i} className={`bg-warning ${isHighlighted ? 'bg-warning-focus' : ''}`}>
-							{part}
-						</mark>
-					) : (
-						part
-					)
-				)}
-			</span>
-		);
-	};
-
-	return (
-		<div className={`chat ${isOwnMessage ? "chat-end" : "chat-start"}`}>
-			<div className={`chat-bubble break-all ${isOwnMessage ? "chat-bubble-primary" : ""}`}>
-				{getHighlightedText(message.text, searchTerm)}
-			</div>
-		</div>
-	);
-};
+import MessageBubble from "./MessageBubble";
 
 const ChatContainer = () => {
 	const { messages, isMessagesLoading, isProfileOpen } = useChatStore();
@@ -50,9 +21,9 @@ const ChatContainer = () => {
 	useEffect(() => {
 		if (searchTerm) {
 			const matches = messages.reduce((acc, message, index) => {
-				if (message.text.toLowerCase().includes(searchTerm.toLowerCase())) {
+				// Only include text messages in search
+				if (message.type === 'text' && message.text.toLowerCase().includes(searchTerm.toLowerCase()))
 					acc.push(index);
-				}
 				return acc;
 			}, []);
 			setMatchedMessages(matches);

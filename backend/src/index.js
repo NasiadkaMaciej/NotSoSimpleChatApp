@@ -14,7 +14,8 @@ const app = express();
 const apiPort = process.env.API_PORT || 3005;
 const socketPort = process.env.SOCKET_PORT || 3006;
 
-app.use(express.json());
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use(cors({
 	// ToDo: Is localhost needed?
 	origin: [`http://127.0.0.1:${apiPort}`, 'https://front.nasiadka.pl'],

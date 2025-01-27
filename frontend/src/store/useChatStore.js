@@ -19,6 +19,8 @@ export const useChatStore = create((set, get) => ({
 	isMessagesLoading: false,
 	isProfileOpen: false,
 
+	setProfileOpen: (isOpen) => { set({ isProfileOpen: isOpen }) },
+
 	getUsers: async () => {
 		set({ isUsersLoading: true });
 		try {
@@ -53,10 +55,14 @@ export const useChatStore = create((set, get) => ({
 			set({ isMessagesLoading: false });
 		}
 	},
-	sendMessage: async (text) => {
+	sendMessage: async (text, image) => {
 		const { selectedUser, messages } = get();
 		try {
-			const res = await axiosInstance.post(`/message/send/${selectedUser._id}`, { text });
+			const messageData = image ? { image } : { text };
+			const res = await axiosInstance.post(
+				`/message/send/${selectedUser._id}`,
+				messageData
+			);
 			set({ messages: [...messages, res.data] });
 		} catch (error) {
 			displayError(error);
