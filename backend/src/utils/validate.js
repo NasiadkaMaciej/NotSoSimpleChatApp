@@ -9,7 +9,7 @@ export const validateSignUpData = (username, email, password) => {
 	return null;
 };
 
-const isPasswordValid = (password) => {
+export const isPasswordValid = (password) => {
 	const passwordRegex =
 		/^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>]).{12,}$/;
 	return passwordRegex.test(password);

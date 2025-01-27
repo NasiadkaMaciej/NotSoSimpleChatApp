@@ -1,8 +1,7 @@
-import User from "../models/userModel.js";
 import Message from "../models/messageModel.js";
-
-import { getReceiverSocketId, io } from "../utils/socket.js";
+import User from "../models/userModel.js";
 import { sendError } from "../utils/errors.js";
+import { io, getReceiverSocketId } from "../utils/socket.js";
 
 export const getUsers = async (req, res) => {
 	// ToDo: Add friends, family, work colleagues lists
@@ -21,29 +20,22 @@ export const getUsers = async (req, res) => {
 	}
 };
 
-getMessages: async (userId) => {
-	set({ isMessagesLoading: true });
+export const getMessages = async (req, res) => {
 	try {
-		const res = await axiosInstance.get(`/message/${userId}`);
-		// Update messages only if they actually changed
-		set((state) => {
-			const newMessages = res.data;
-			if (JSON.stringify(state.messages) !== JSON.stringify(newMessages))
-				return { messages: newMessages };
-			return {};
-		});
-	} catch (error) {
-		displayError(error);
-		set({ messages: [] });
-	} finally {
-		set({ isMessagesLoading: false });
-	}
-};
+		const { id: receiverId } = req.params;
+		const senderId = req.user._id;
 
-appendMessage: (message) => {
-	set((state) => ({
-		messages: [...state.messages, message]
-	}));
+		const messages = await Message.find({
+			$or: [
+				{ senderId, receiverId },
+				{ senderId: receiverId, receiverId: senderId }
+			]
+		}).sort({ createdAt: 1 });
+
+		res.status(200).json(messages);
+	} catch (error) {
+		sendError(res, error, "getMessages");
+	}
 };
 
 export const sendMessage = async (req, res) => {
@@ -62,13 +54,8 @@ export const sendMessage = async (req, res) => {
 
 		// Emit the message to the receiver
 		const receiverSocketId = getReceiverSocketId(receiverId);
-		if (receiverSocketId) {
-			io.to(receiverSocketId).emit("newMessage", {
-				senderId,
-				receiverId,
-				text
-			});
-		}
+		if (receiverSocketId)
+			io.to(receiverSocketId).emit("newMessage", newMessage);
 
 		res.status(201).json(newMessage);
 	} catch (error) {

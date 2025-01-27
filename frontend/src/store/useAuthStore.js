@@ -36,14 +36,22 @@ export const useAuthStore = create((updateState) => ({
 		updateState({ isSigningUp: true });
 		try {
 			const response = await axiosInstance.post('/auth/signup', formData);
-			toast.success("Account created successfully. Please verify your email.");
-			setTimeout(() => {
-				window.location.href = '/login';
-			}, 3000);
+			toast.success("Account created successfully. Please verify your email.");			
+			updateState({ 
+				isSigningUp: false,
+				signupSuccess: true 
+			});
+	
+			return true; // Indicate success to component
 		} catch (error) {
-			displayError(error);
-		} finally {
-			updateState({ isSigningUp: false });
+			console.error("Signup error:", error);
+			const message = error.response?.data?.error || "Failed to create account";
+			toast.error(message);
+			updateState({ 
+				isSigningUp: false,
+				signupSuccess: false 
+			});
+			return false;
 		}
 	},
 

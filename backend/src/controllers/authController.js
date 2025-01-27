@@ -127,3 +127,48 @@ export const verifyEmail = async (req, res) => {
 		sendError(res, error, 'verifyEmail');
 	}
 };
+
+export const updateCredentials = async (req, res) => {
+	const { newUsername, currentPassword, newPassword } = req.body;
+
+	// ToDo: Make error handling and validation a util and use it on:
+	// Frontend - ProfilePage.jsx
+	// Frontend - SignupPage.jsx
+	// Backend - authController.js (here)
+	
+	try {
+		const user = await User.findById(req.user._id);
+		if (!user) return res.status(404).json({ error: "User not found" });
+
+		// Validate current password
+		if (currentPassword) {
+			const isPasswordCorrect = await bcrypt.compare(currentPassword, user.password);
+			if (!isPasswordCorrect) return res.status(400).json({ error: "Current password is incorrect" });
+		}
+
+		// Update username if provided
+		if (newUsername) {
+			if (newUsername.length < 3) return res.status(400).json({ error: "Username must be at least 3 characters long" });
+			user.username = newUsername;
+		}
+
+		// Update password if provided
+		if (newPassword) {
+			if (newPassword.length < 12) return res.status(400).json({ error: "Password must be at least 12 characters long" });
+			if (!isPasswordValid(newPassword)) return res.status(400).json({ error: "Password must contain at least one letter, one number, and one special character" });
+			user.password = await bcrypt.hash(newPassword, 10);
+		}
+
+		await user.save();
+
+		res.status(200).json({
+			_id: user._id,
+			username: user.username,
+			email: user.email,
+			avatarColor: user.avatarColor,
+			aboutMe: user.aboutMe
+		});
+	} catch (error) {
+		sendError(res, error, "updateCredentials");
+	}
+};

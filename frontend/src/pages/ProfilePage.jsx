@@ -14,6 +14,13 @@ const ProfilePage = () => {
 	const [aboutMe, setAboutMe] = useState(authUser.aboutMe || "");
 	const [showConfirmModal, setShowConfirmModal] = useState(false);
 	const timeoutRef = useRef(null);
+	const [showUpdateUsername, setShowUpdateUsername] = useState(false);
+	const [showUpdatePassword, setShowUpdatePassword] = useState(false);
+	const [newUsername, setNewUsername] = useState("");
+	const [currentPassword, setCurrentPassword] = useState("");
+	const [newPassword, setNewPassword] = useState("");
+	const [confirmNewPassword, setConfirmNewPassword] = useState("");
+
 
 	useEffect(() => {
 		setSelectedColor(authUser.avatarColor || "#ffffff");
@@ -38,6 +45,47 @@ const ProfilePage = () => {
 			await updateProfile({ avatarColor: selectedColor, aboutMe: aboutMeText });
 		}, 2000);
 		setAboutMe(e.target.value);
+	};
+
+	const handleUpdateUsername = async (e) => {
+		e.preventDefault();
+		try {
+			const res = await axiosInstance.put("/auth/credentials", { newUsername });
+			toast.success("Username updated successfully");
+			setShowUpdateUsername(false);
+			setNewUsername("");
+			// Update auth user in store
+			updateProfile(res.data);
+		} catch (error) {
+			toast.error(error.response?.data?.error || "Failed to update username");
+		}
+	};
+
+	const handleUpdatePassword = async (e) => {
+		e.preventDefault();
+
+		const passwordErrors = validatePassword(newPassword);
+		const confirmErrors = newPassword !== confirmNewPassword
+			? ["Passwords do not match"]
+			: [];
+
+		if (passwordErrors.length || confirmErrors.length) {
+			setValidationErrors({
+				newPassword: passwordErrors,
+				confirmPassword: confirmErrors
+			});
+			return;
+		}
+
+		try {
+			await axiosInstance.put("/auth/credentials", {
+				currentPassword,
+				newPassword
+			});
+			toast.success("Password updated successfully");
+		} catch (error) {
+			toast.error(error.response?.data?.error || "Failed to update password");
+		}
 	};
 
 	const handleDeactivate = async () => {
@@ -97,6 +145,70 @@ const ProfilePage = () => {
 						{/* ToDo: Add option to change password */}
 						<FormInput type="text" label="Username" placeholder={authUser?.username} icon="user" disabled />
 						<FormInput type="text" label="Email Address" placeholder={authUser?.email} icon="mail" disabled />
+					</div>
+
+					<div className="space-y-6">
+						{/* Username update form */}
+						<div className="collapse bg-base-200">
+							<input type="checkbox" checked={showUpdateUsername} onChange={() => setShowUpdateUsername(!showUpdateUsername)} />
+							<div className="collapse-title text-xl font-medium">
+								Change Username
+							</div>
+							<div className="collapse-content">
+								<form onSubmit={handleUpdateUsername} className="space-y-4">
+									<FormInput
+										type="text"
+										label="New Username"
+										placeholder="Enter new username"
+										value={newUsername}
+										onChange={(e) => setNewUsername(e.target.value)}
+										icon="user"
+									/>
+									<button type="submit" className="btn btn-primary w-full" disabled={!newUsername}>
+										Update Username
+									</button>
+								</form>
+							</div>
+						</div>
+
+						{/* Password update form */}
+						<div className="collapse bg-base-200">
+							<input type="checkbox" checked={showUpdatePassword} onChange={() => setShowUpdatePassword(!showUpdatePassword)} />
+							<div className="collapse-title text-xl font-medium">
+								Change Password
+							</div>
+							<div className="collapse-content">
+								<form onSubmit={handleUpdatePassword} className="space-y-4">
+									<FormInput
+										type="password"
+										label="Current Password"
+										placeholder="Enter current password"
+										value={currentPassword}
+										onChange={(e) => setCurrentPassword(e.target.value)}
+										icon="lock"
+									/>
+									<FormInput
+										type="password"
+										label="New Password"
+										placeholder="Enter new password"
+										value={newPassword}
+										onChange={(e) => setNewPassword(e.target.value)}
+										icon="lock"
+									/>
+									<FormInput
+										type="password"
+										label="Confirm New Password"
+										placeholder="Confirm new password"
+										value={confirmNewPassword}
+										onChange={(e) => setConfirmNewPassword(e.target.value)}
+										icon="lock"
+									/>
+									<button type="submit" className="btn btn-primary w-full" disabled={!currentPassword || !newPassword || !confirmNewPassword}>
+										Update Password
+									</button>
+								</form>
+							</div>
+						</div>
 					</div>
 
 					<div className="mt-6 bg-base-300 rounded-xl p-6">

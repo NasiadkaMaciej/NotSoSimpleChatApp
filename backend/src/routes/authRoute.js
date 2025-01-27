@@ -1,5 +1,5 @@
 import express from "express";
-import { checkAuth, signup, login, logout, updateProfile, verifyEmail } from "../controllers/authController.js";
+import { checkAuth, signup, login, logout, updateProfile, verifyEmail, updateCredentials } from "../controllers/authController.js";
 import { authenticateUser, deactivateAccount } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
@@ -12,5 +12,6 @@ router.get("/check", authenticateUser, checkAuth);
 router.put("/profile", authenticateUser, updateProfile); // Ensure this line is present
 router.get('/verify-email', verifyEmail);
 router.delete('/deactivate', authenticateUser, deactivateAccount);
+router.put("/credentials", authenticateUser, updateCredentials);
 
 export default router;
