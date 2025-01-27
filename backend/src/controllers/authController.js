@@ -1,7 +1,7 @@
 import User from "../models/userModel.js";
 import bcrypt from "bcryptjs";
 import { generateToken } from "../utils/token.js";
-import { validateSignUpData } from "../utils/validate.js";
+import { validateSignUpData, isPasswordValid } from "../utils/validate.js";
 import { sendError } from "../utils/errors.js";
 import crypto from "crypto";
 import { sendVerificationEmail } from "../utils/email.js";

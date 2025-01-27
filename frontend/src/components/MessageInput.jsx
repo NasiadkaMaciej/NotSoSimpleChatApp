@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Send, Smile, Image as ImageIcon, X } from "lucide-react";
 import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
@@ -15,6 +15,20 @@ const MessageInput = () => {
 	const imageInputRef = useRef(null);
 	const pickerRef = useRef(null);
 
+	const darkThemes = [
+		'dark',
+		'synthwave',
+		'halloween',
+		'forest',
+		'black',
+		'luxury',
+		'business',
+		'night',
+		'coffee',
+		'dim',
+		'sunset'
+	];
+
 	// Close emoji picker
 	useEffect(() => {
 		const handleClickOutside = (event) => {
@@ -24,7 +38,6 @@ const MessageInput = () => {
 		document.addEventListener('mousedown', handleClickOutside);
 		return () => document.removeEventListener('mousedown', handleClickOutside);
 	}, []);
-
 	const handleImageSelect = (e) => {
 		const file = e.target.files[0];
 		if (file) {
@@ -56,7 +69,7 @@ const MessageInput = () => {
 				await sendMessage(null, image);
 				setImage(null);
 				setImagePreview(null);
-			} else await sendMessage(convertTextWithEmojis(trimmedText));
+			} else await sendMessage(trimmedText);
 			setText("");
 		} catch (error) {
 			console.error("Failed to send message:", error);
@@ -75,16 +88,6 @@ const MessageInput = () => {
 		setText(prev => prev + emoji.native);
 		setShowEmojiPicker(false);
 		inputRef.current?.focus();
-	};
-
-	// ToDo: Change name to: renderText?
-	const convertTextWithEmojis = (text) => {
-		const emojiMap = { // When user types emoji instead of choosing it from the picker
-			':)': '😊', ':-)': '😊', ':D': '😃', ':-D': '😃', ':(': '😞', ':-(': '😞',
-			';)': '😉', ';-)': '😉', ':P': '😛', ':-P': '😛', ':O': '😮', ':-O': '😮',
-			'<3': '❤️',
-		};
-		return text.replace(/:\)|:-\)|:D|:-D|:\(|:-\(|;\)|;-\)|:P|:-P|:O|:-O|<3/g, match => emojiMap[match]);
 	};
 
 	return (
@@ -134,7 +137,7 @@ const MessageInput = () => {
 							<Picker
 								data={data}
 								onEmojiSelect={handleEmojiSelect}
-								theme={localStorage.getItem('theme')}
+								theme={darkThemes.includes(localStorage.getItem('theme')) ? 'dark' : 'light'}
 							/>
 						</div>
 					)}

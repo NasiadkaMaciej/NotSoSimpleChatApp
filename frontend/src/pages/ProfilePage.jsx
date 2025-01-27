@@ -7,6 +7,7 @@ import FormInput from "../components/Form/FormInput";
 import Avatar from "../components/Avatar";
 import { axiosInstance } from "../utils/axios";
 import Modal from "../components/Modal";
+import { isPasswordValid } from "../../../backend/src/utils/validate";
 
 const ProfilePage = () => {
 	const { authUser, isUpdatingProfile, updateProfile, logout } = useAuthStore();
@@ -49,12 +50,17 @@ const ProfilePage = () => {
 
 	const handleUpdateUsername = async (e) => {
 		e.preventDefault();
+
+		if (newUsername.length < 3) {
+			toast.error("Username must be at least 3 characters long");
+			return;
+		}
+
 		try {
 			const res = await axiosInstance.put("/auth/credentials", { newUsername });
 			toast.success("Username updated successfully");
 			setShowUpdateUsername(false);
 			setNewUsername("");
-			// Update auth user in store
 			updateProfile(res.data);
 		} catch (error) {
 			toast.error(error.response?.data?.error || "Failed to update username");
@@ -64,16 +70,15 @@ const ProfilePage = () => {
 	const handleUpdatePassword = async (e) => {
 		e.preventDefault();
 
-		const passwordErrors = validatePassword(newPassword);
-		const confirmErrors = newPassword !== confirmNewPassword
-			? ["Passwords do not match"]
-			: [];
+		// Validate password requirements
+		if (!isPasswordValid(newPassword)) {
+			toast.error("Password must be at least 12 characters and contain letters, numbers, and special characters");
+			return;
+		}
 
-		if (passwordErrors.length || confirmErrors.length) {
-			setValidationErrors({
-				newPassword: passwordErrors,
-				confirmPassword: confirmErrors
-			});
+		// Check if passwords match
+		if (newPassword !== confirmNewPassword) {
+			toast.error("Passwords do not match");
 			return;
 		}
 
@@ -83,6 +88,10 @@ const ProfilePage = () => {
 				newPassword
 			});
 			toast.success("Password updated successfully");
+			setShowUpdatePassword(false);
+			setCurrentPassword("");
+			setNewPassword("");
+			setConfirmNewPassword("");
 		} catch (error) {
 			toast.error(error.response?.data?.error || "Failed to update password");
 		}
@@ -118,7 +127,6 @@ const ProfilePage = () => {
 								className={`absolute bottom-0 right-0 bg-base-content hover:scale-105 p-2 rounded-full cursor-pointer transition-all duration-200 ${isUpdatingProfile ? "animate-pulse pointer-events-none" : ""}`}
 							>
 								<Pipette className="w-5 h-5 text-base-200" />
-								{ /* ToDo: Place it better */}
 								<input
 									type="color"
 									id="color-picker"
@@ -142,13 +150,11 @@ const ProfilePage = () => {
 					</div>
 
 					<div className="space-y-6">
-						{/* ToDo: Add option to change password */}
 						<FormInput type="text" label="Username" placeholder={authUser?.username} icon="user" disabled />
 						<FormInput type="text" label="Email Address" placeholder={authUser?.email} icon="mail" disabled />
 					</div>
 
 					<div className="space-y-6">
-						{/* Username update form */}
 						<div className="collapse bg-base-200">
 							<input type="checkbox" checked={showUpdateUsername} onChange={() => setShowUpdateUsername(!showUpdateUsername)} />
 							<div className="collapse-title text-xl font-medium">
@@ -171,7 +177,6 @@ const ProfilePage = () => {
 							</div>
 						</div>
 
-						{/* Password update form */}
 						<div className="collapse bg-base-200">
 							<input type="checkbox" checked={showUpdatePassword} onChange={() => setShowUpdatePassword(!showUpdatePassword)} />
 							<div className="collapse-title text-xl font-medium">
@@ -220,7 +225,6 @@ const ProfilePage = () => {
 							</div>
 							<div className="flex items-center justify-between py-2">
 								<span>Account Status</span>
-								{ /* ToDo: Set active status */}
 								<span className="text-green-500">Active</span>
 							</div>
 							<div className="mt-8 text-center">

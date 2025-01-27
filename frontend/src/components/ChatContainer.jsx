@@ -19,19 +19,15 @@ const ChatContainer = () => {
 
 	// Update matches when search term changes
 	useEffect(() => {
-		if (searchTerm) {
-			const matches = messages.reduce((acc, message, index) => {
-				// Only include text messages in search
+		const matches = searchTerm
+			? messages.reduce((acc, message, index) => {
 				if (message.type === 'text' && message.text.toLowerCase().includes(searchTerm.toLowerCase()))
 					acc.push(index);
 				return acc;
-			}, []);
-			setMatchedMessages(matches);
-			setCurrentMatch(0);
-		} else {
-			setMatchedMessages([]);
-			setCurrentMatch(0);
-		}
+			}, [])
+			: [];
+		setMatchedMessages(matches);
+		setCurrentMatch(0);
 	}, [searchTerm, messages]);
 
 	// Scroll to highlighted message
@@ -52,6 +48,7 @@ const ChatContainer = () => {
 	};
 
 	const handleNextMatch = () => {
+		// ToDo: Do it on enter push
 		setCurrentMatch(prev => Math.min(matchedMessages.length - 1, prev + 1));
 	};
 
