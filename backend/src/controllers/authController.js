@@ -95,6 +95,9 @@ export const updateProfile = async (req, res) => {
 		const user = await User.findById(req.user._id);
 		if (!user) return res.status(404).json({ error: "User not found" });
 
+		if (aboutMe && aboutMe.length > 256)
+			return res.status(400).json({ error: "About Me section cannot exceed 256 characters" });
+
 		user.avatarColor = avatarColor || user.avatarColor;
 		user.aboutMe = aboutMe || user.aboutMe;
 		await user.save();

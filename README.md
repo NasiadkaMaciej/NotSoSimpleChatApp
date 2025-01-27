@@ -1,43 +1,48 @@
 # Not so simple Chat App
 
-Welcome to the Not so simple Chat App! This is a real-time chat application built with Node.js, Express, MongoDB, and Socket.io. Feel free to to visit and check the website! [front.nasiadka.pl](https://front.nasiadka.pl/)
+Welcome to the Not so simple Chat App! This is a real-time chat application built with modern web technologies. Feel free to visit and check the website at [front.nasiadka.pl](https://front.nasiadka.pl/)
 
 ## Features
 
-- User authentication (signup, login, logout, checkAuth)
-- Real-time messaging with Socket.io
-- Secure password hashing with bcrypt
-- JWT-based authentication
-- MongoDB for data storage
+- User authentication (signup, login, logout) with email verification
+- Real-time messaging with image, links and emoticons support
+- Friends system with online status tracking
+- Message search and chat history
+- Profile customization with avatar colors and about section
+- Theme customization
+- Secure password hashing and cookie authentication
+- Responsive design for mobile and desktop
+- Advanced systems of error handling
 
-## Frontend
 
-The frontend is built with React and Vite.
+### Frontend
+Built with React and Vite, featuring:
 
-| Libraries          | Description                                      |
-|--------------------|--------------------------------------------------|
-| **React**          | A JavaScript library for building user interfaces. |
-| **React Router**   | For handling routing in the application.         |
-| **Zustand**        | For state management.                            |
-| **Axios**          | For making HTTP requests.                        |
-| **Tailwind CSS**   | For styling the application.                     |
-| **DaisyUI**        | A Tailwind CSS component library.                |
-| **React Hot Toast**| For displaying toast notifications.              |
-| **Lucide React**   | For icons.                                       |
+| Technology        | Usage                                           |
+|------------------|--------------------------------------------------|
+| **React 18**     | Modern UI development with hooks and components  |
+| **Vite**         | Next-generation frontend tooling                 |
+| **Zustand**      | Simple and scalable state management             |
+| **React Router** | Client-side routing and navigation               |
+| **Axios**        | HTTP client for API requests                     |
+| **Socket.io**    | Real-time bidirectional communication            |
+| **TailwindCSS**  | Utility-first CSS framework                      |
+| **DaisyUI**      | Component library for Tailwind                   |
+| **Lucide**       | Modern icon library                              |
 
 ## Backend
 
 The backend is built with Node.js, Express, and MongoDB.
 
-| Libraries          | Description                                      |
-|--------------------|--------------------------------------------------|
-| **Express**        | A web application framework for Node.js.         |
-| **Mongoose**       | An ODM (Object Data Modeling) library for MongoDB and Node.js. |
+| Libraries          | Description                                       |
+|--------------------|---------------------------------------------------|
+| **Express**        | A web application framework for Node.js.          |
+| **Mongoose**       | A library for MongoDB and Node.js.                |
 | **JWT (jsonwebtoken)** | For generating and verifying JSON Web Tokens. |
-| **Bcryptjs**       | For hashing passwords.                           |
-| **Socket.io**      | For real-time communication.                     |
-| **Cors**           | For enabling Cross-Origin Resource Sharing.      |
-| **Cookie-Parser**  | For parsing cookies.                             |
+| **Bcryptjs**       | For hashing passwords.                            |
+| **Socket.io**      | For real-time communication.                      |
+| **Cors**           | For enabling Cross-Origin Resource Sharing.       |
+| **Cookie-Parser**  | For parsing cookies.                              |
 | **Dotenv**         | For loading environment variables from a `.env` file. |
 
 

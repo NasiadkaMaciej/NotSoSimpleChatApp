@@ -29,8 +29,9 @@ const userSchema = new mongoose.Schema(
 		},
 		aboutMe: {
 			type: String,
-			default: ""
-		},
+			default: "",
+			maxLength: [256, 'About Me section cannot exceed 256 characters']
+		  },
 		isOnline: {
 			type: Boolean,
 			default: false

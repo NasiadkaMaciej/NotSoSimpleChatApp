@@ -9,6 +9,8 @@ import { axiosInstance } from "../utils/axios";
 import Modal from "../components/Modal";
 import { isPasswordValid } from "../../../backend/src/utils/validate";
 
+const MAX_ABOUT_LENGTH = 256;
+
 const ProfilePage = () => {
 	const { authUser, isUpdatingProfile, updateProfile, logout } = useAuthStore();
 	const [selectedColor, setSelectedColor] = useState(authUser.avatarColor || "#ffffff");
@@ -39,13 +41,15 @@ const ProfilePage = () => {
 
 	// Save about me text after 2 seconds of inactivity
 	const handleAboutMeChange = (e) => {
-		clearTimeout(timeoutRef.current);
-		timeoutRef.current = setTimeout(async () => {
-			const aboutMeText = e.target.value;
-			setAboutMe(aboutMeText);
-			await updateProfile({ avatarColor: selectedColor, aboutMe: aboutMeText });
-		}, 2000);
-		setAboutMe(e.target.value);
+		const text = e.target.value;
+		if (text.length <= MAX_ABOUT_LENGTH) {
+			clearTimeout(timeoutRef.current);
+			timeoutRef.current = setTimeout(async () => {
+				setAboutMe(text);
+				await updateProfile({ avatarColor: selectedColor, aboutMe: text });
+			}, 2000);
+			setAboutMe(text);
+		}
 	};
 
 	const handleUpdateUsername = async (e) => {
@@ -146,6 +150,7 @@ const ProfilePage = () => {
 							value={aboutMe}
 							onChange={handleAboutMeChange}
 							disabled={isUpdatingProfile}
+							maxLength={MAX_ABOUT_LENGTH}
 						></textarea>
 					</div>
 

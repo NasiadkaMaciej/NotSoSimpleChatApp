@@ -1,7 +1,5 @@
 // Manages chat messages, users, and real-time message subscriptions
-// Uses Zustand for state management
 
-import { create } from "zustand";
 import toast from "react-hot-toast";
 import { axiosInstance } from "../utils/axios";
 
