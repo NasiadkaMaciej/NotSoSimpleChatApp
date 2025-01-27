@@ -38,7 +38,15 @@ const userSchema = new mongoose.Schema(
 		lastSeen: {
 			type: Date,
 			default: Date.now
-		}
+		},
+        verified: {
+            type: Boolean,
+            default: false
+        },
+        verificationToken: {
+            type: String,
+            default: null
+        }
 	},
 	// ToDo: Add friends, family, work colleagues lists
 	// ToDo: Add profile picture

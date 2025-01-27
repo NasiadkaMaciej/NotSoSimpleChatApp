@@ -36,8 +36,10 @@ export const useAuthStore = create((updateState) => ({
 		updateState({ isSigningUp: true });
 		try {
 			const response = await axiosInstance.post('/auth/signup', formData);
-			toast.success("Account created successfully");
-			updateState({ authUser: response.data });
+			toast.success("Account created successfully. Please verify your email.");
+			setTimeout(() => {
+				window.location.href = '/login';
+			}, 3000);
 		} catch (error) {
 			displayError(error);
 		} finally {

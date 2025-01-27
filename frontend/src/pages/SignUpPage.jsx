@@ -33,8 +33,14 @@ const SignUpPage = () => {
 
 	const handleSubmit = (e) => {
 		e.preventDefault();
-		if (validateForm())
+		if (validateForm()) {
 			signup({ username: formData.username, email: formData.email, password: formData.password });
+			setFormData((prevData) => ({
+				...prevData,
+				password: "",
+				confirmPassword: "",
+			}));
+		}
 	};
 
 	const handleChange = (e) => {
@@ -42,6 +48,9 @@ const SignUpPage = () => {
 		setFormData((prevData) => ({ ...prevData, [name]: value }));
 	};
 
+	const regularFields = ["username", "email"];
+	const passwordFields = ["password", "confirmPassword"];
+	
 	return (
 		<FormLayout
 			title="Create an account"
@@ -51,16 +60,28 @@ const SignUpPage = () => {
 			linkDescription="Already have an account? Simply"
 		>
 			<form onSubmit={handleSubmit} className="space-y-6">
-				{["username", "email", "password", "confirmPassword"].map((field, index) => (
+				{regularFields.map((field, index) => (
 					<FormInput
-						key={index}
-						type={field.includes("password") ? "password" : "text"}
-						label={field.charAt(0).toUpperCase() + field.slice(1).replace("confirmPassword", "Confirm Password")}
-						placeholder={field === "username" ? "Simple User" : field === "email" ? "simple@email.com" : "••••••••"}
+						key={field}
+						type="text"
+						label={field.charAt(0).toUpperCase() + field.slice(1)}
+						placeholder={field === "username" ? "Simple User" : "simple@email.com"}
 						value={formData[field]}
 						onChange={handleChange}
 						name={field}
-						icon={field.includes("password") ? "lock" : field}
+						icon={field}
+					/>
+				))}
+				{passwordFields.map((field, index) => (
+					<FormInput
+						key={field}
+						type="password"
+						label={field.charAt(0).toUpperCase() + field.slice(1).replace("Password", " Password")}
+						placeholder="••••••••"
+						value={formData[field]}
+						onChange={handleChange}
+						name={field}
+						icon="eye"
 					/>
 				))}
 				<button type="submit" className="btn btn-primary w-full" disabled={isSigningUp}>

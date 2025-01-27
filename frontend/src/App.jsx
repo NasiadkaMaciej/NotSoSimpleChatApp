@@ -9,6 +9,7 @@ import SignUpPage from './pages/SignUpPage';
 import LoginPage from './pages/LoginPage';
 import ProfilePage from './pages/ProfilePage';
 import { useAuthStore } from './store/useAuthStore';
+import EmailVerificationPage from './pages/EmailVerificationPage';
 
 const App = () => {
 	const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
@@ -44,6 +45,7 @@ const App = () => {
 				<Route path='/signup' element={!authUser ? <SignUpPage /> : <Navigate to="/" />} />
 				<Route path='/login' element={!authUser ? <LoginPage /> : <Navigate to="/" />} />
 				<Route path='/profile' element={authUser ? <ProfilePage /> : <Navigate to="/login" />} />
+				<Route path='/verify-email' element={<EmailVerificationPage />} /> {/* Ensure this line is present */}
 				<Route path="*" element={<NotFoundRedirect />} />
 			</Routes>
 			<Toaster /> { /* Makes all toasts appear in the app */}

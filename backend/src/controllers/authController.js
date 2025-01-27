@@ -3,9 +3,10 @@ import bcrypt from "bcryptjs";
 import { generateToken } from "../utils/token.js";
 import { validateSignUpData } from "../utils/validate.js";
 import { sendError } from "../utils/errors.js";
+import crypto from "crypto";
+import { sendVerificationEmail } from "../utils/email.js";
 
 export const signup = async (req, res) => {
-
 	const { username, email, password } = req.body;
 
 	const validationFailed = validateSignUpData(username, email, password);
@@ -16,17 +17,21 @@ export const signup = async (req, res) => {
 		if (existingUser) return res.status(400).json({ error: "Email already exists" });
 
 		const hashedPassword = await bcrypt.hash(password, 10);
+		const verificationToken = crypto.randomBytes(32).toString('hex');
 
-		const newUser = new User({ username, email, password: hashedPassword });
+		const newUser = new User({
+			username,
+			email,
+			password: hashedPassword,
+			verificationToken,
+			verified: false
+		});
+
 		await newUser.save();
-
-		generateToken(newUser._id, res);
+		await sendVerificationEmail(email, verificationToken);
 
 		res.status(201).json({
-			_id: newUser._id,
-			username: newUser.username,
-			email: newUser.email,
-			avatarColor: newUser.avatarColor
+			message: "Account created. Please verify your email."
 		});
 	} catch (error) {
 		sendError(res, error, "signup");
@@ -42,6 +47,7 @@ export const login = async (req, res) => {
 	try {
 		const user = await User.findOne({ email });
 		if (!user) return res.status(400).json({ error: "Account not found" });
+		if (!user.verified) return res.status(400).json({ error: 'Please verify your email first' });
 
 		const isPasswordCorrect = await bcrypt.compare(password, user.password);
 		if (!isPasswordCorrect) return res.status(400).json({ error: "Invalid password" });
@@ -97,5 +103,22 @@ export const updateProfile = async (req, res) => {
 		});
 	} catch (error) {
 		sendError(res, error, "updateProfile");
+	}
+};
+
+export const verifyEmail = async (req, res) => {
+	const { token } = req.query;
+
+	try {
+		const user = await User.findOne({ verificationToken: token });
+		if (!user) return res.status(400).json({ error: 'Invalid or expired token' });
+
+		user.verified = true;
+		user.verificationToken = null;
+		await user.save();
+
+		res.status(200).json({ message: 'Email verified successfully' });
+	} catch (error) {
+		sendError(res, error, 'verifyEmail');
 	}
 };
