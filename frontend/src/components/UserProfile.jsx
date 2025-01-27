@@ -1,0 +1,47 @@
+import { X } from 'lucide-react'
+import Avatar from './Avatar'
+import { useChatStore } from '../store/useChatStore'
+
+export default function UserProfile() {
+	const { selectedUser, setProfileOpen } = useChatStore()
+
+	return (
+		<div className="w-80 h-full border-l border-base-300 bg-base-100 flex flex-col">
+			<div className="p-5 border-b border-base-300 flex justify-between items-center">
+				<h2 className="text-lg font-semibold">Profile</h2>
+				<button
+					onClick={() => setProfileOpen(false)}
+					className="btn btn-ghost btn-sm btn-circle"
+				>
+					<X className="size-5" />
+				</button>
+			</div>
+
+			<div className="p-6 flex flex-col items-center gap-4">
+				<Avatar color={selectedUser?.avatarColor} size="40" overrideTailwind="true" />
+				<h3 className="text-xl font-semibold">{selectedUser?.username}</h3>
+			</div>
+
+			{selectedUser?.aboutMe && (
+				<div className="px-6 pb-6">
+					<h4 className="text-sm font-medium text-base-content/60 mb-2">About</h4>
+					<p className="text-sm break-all">{selectedUser.aboutMe}</p>
+				</div>
+			)}
+
+			<div className="mt-auto p-6 border-t border-base-300">
+				<h4 className="text-sm font-medium text-base-content/60 mb-4">
+					Conversation settings
+				</h4>
+				<div className="space-y-4">
+					<button className="btn btn-outline w-full btn-sm" disabled>
+						Mute notifications
+					</button>
+					<button className="btn btn-outline btn-error w-full btn-sm" disabled>
+						Block user
+					</button>
+				</div>
+			</div>
+		</div>
+	)
+}

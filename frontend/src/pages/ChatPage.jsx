@@ -7,25 +7,24 @@ import ChatContainer from "../components/ChatContainer";
 import WelcomeChat from "../components/WelcomeChat";
 
 const ChatPage = () => {
-    const { selectedUser } = useChatStore();
-    const { authUser } = useAuthStore();
+	const { selectedUser, appendMessage } = useChatStore();
+	const { authUser } = useAuthStore();
 
-    useEffect(() => {
-		// Use /socket.io/socket.io.js from the server
-        const socket = window.io({
-            path: '/socket.io/',
-            query: { userId: authUser._id }
+	useEffect(() => {
+		const socket = window.io({
+			path: '/socket.io/',
+			query: { userId: authUser._id }
 			// ToDo: Reconnections?
-        });
+		});
 
-        socket.on("newMessage", (message) => {
-            if (selectedUser?._id === message.senderId) {
-                useChatStore.getState().getMessages(selectedUser._id);
-            }
-        });
+		socket.on("newMessage", (message) => {
+			if (selectedUser?._id === message.senderId) {
+				appendMessage(message);
+			}
+		});
 
-        return () => socket.disconnect();
-    }, [authUser._id, selectedUser]);
+		return () => socket.disconnect();
+	}, [authUser._id, selectedUser]);
 
 	return (
 		<div className="h-screen bg-base-200">

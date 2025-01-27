@@ -17,6 +17,10 @@ export const useChatStore = create((set, get) => ({
 	messages: [],
 	isUsersLoading: false,
 	isMessagesLoading: false,
+	isProfileOpen: false,
+	setMessageText: (text) => set({ messageText: text }),
+
+	setProfileOpen: (value) => set({ isProfileOpen: value }),
 
 	getUsers: async () => {
 		set({ isUsersLoading: true });
@@ -66,5 +70,13 @@ export const useChatStore = create((set, get) => ({
 		} catch (error) {
 			displayError(error);
 		}
-	}
+	},
+
+	appendMessage: (message) => {
+		set((state) => {
+			const updatedMessages = [...state.messages];
+			updatedMessages.push(message);
+			return { messages: updatedMessages };
+		});
+	},
 }));

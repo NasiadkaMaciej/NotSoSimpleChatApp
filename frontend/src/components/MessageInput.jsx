@@ -6,11 +6,11 @@ import Picker from '@emoji-mart/react'
 import { useChatStore } from "../store/useChatStore";
 
 const MessageInput = () => {
+	const { selectedUser, sendMessage } = useChatStore();
 	const [text, setText] = useState("");
 	const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 	const inputRef = useRef(null);
 	const pickerRef = useRef(null);
-	const { sendMessage, selectedUser } = useChatStore();
 
 	// Close emoji picker
 	useEffect(() => {
@@ -76,7 +76,7 @@ const MessageInput = () => {
 								data={data}
 								onEmojiSelect={handleEmojiSelect}
 								theme={(() => {
-								{ /* Convert DaisyUI themes to emoji-picker theme */}
+									{ /* Convert DaisyUI themes to emoji-picker theme */ }
 									const darkThemes = [
 										'dark', 'synthwave', 'cyberpunk', 'halloween',
 										'forest', 'black', 'luxury', 'business',
@@ -95,7 +95,7 @@ const MessageInput = () => {
 					className="flex-1 input input-bordered rounded-lg input-sm sm:input-md"
 					placeholder={selectedUser ? "Type a message..." : "Select a contact to start chatting"}
 					value={text}
-					onChange={(e) => { setText(e.target.value); }}
+					onChange={(e) => setText(e.target.value)}
 					disabled={!selectedUser}
 				/>
 				<button

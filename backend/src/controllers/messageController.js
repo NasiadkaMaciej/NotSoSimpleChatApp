@@ -21,22 +21,29 @@ export const getUsers = async (req, res) => {
 	}
 };
 
-export const getMessages = async (req, res) => {
+getMessages: async (userId) => {
+	set({ isMessagesLoading: true });
 	try {
-		const { id: receiverId } = req.params;
-		const senderId = req.user._id;
-
-		const messages = await Message.find({
-			$or: [
-				{ senderId, receiverId },
-				{ senderId: receiverId, receiverId: senderId }
-			]
-		}).sort({ createdAt: 1 });
-
-		res.status(200).json(messages);
+		const res = await axiosInstance.get(`/message/${userId}`);
+		// Update messages only if they actually changed
+		set((state) => {
+			const newMessages = res.data;
+			if (JSON.stringify(state.messages) !== JSON.stringify(newMessages))
+				return { messages: newMessages };
+			return {};
+		});
 	} catch (error) {
-		sendError(res, error, "getMessages");
+		displayError(error);
+		set({ messages: [] });
+	} finally {
+		set({ isMessagesLoading: false });
 	}
+};
+
+appendMessage: (message) => {
+	set((state) => ({
+		messages: [...state.messages, message]
+	}));
 };
 
 export const sendMessage = async (req, res) => {
