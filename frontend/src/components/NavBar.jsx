@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { MessageSquare, User, LogOut, Sun } from "lucide-react";
 import { useAuthStore } from '../store/useAuthStore';
@@ -9,6 +9,16 @@ const Navbar = () => {
 	const [theme, setTheme] = useState('autumn');
 	const { logout, authUser } = useAuthStore();
 	const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+	const dropdownRef = useRef(null); // Add ref for dropdown
+
+	useEffect(() => { // Close dropdown when clicked outside
+		const handleClickOutside = (event) => {
+			if (dropdownRef.current && !dropdownRef.current.contains(event.target))
+				setIsDropdownOpen(false);
+		};
+		document.addEventListener('mousedown', handleClickOutside);
+		return () => document.removeEventListener('mousedown', handleClickOutside);
+	}, []);
 
 	useEffect(() => { // Load theme from local storage
 		const savedTheme = localStorage.getItem('theme');
@@ -56,9 +66,11 @@ const Navbar = () => {
 								<span className="hidden sm:inline">Themes</span>
 							</button>
 							{isDropdownOpen && (
-								<ul className="absolute right-0 mt-2 w-48 bg-base-100 shadow-lg rounded-lg py-2 z-50 max-h-80 overflow-y-auto">
+								<ul className="absolute right-0 mt-2 w-48 bg-base-100 shadow-lg rounded-lg py-2 z-50 max-h-80 overflow-y-auto"
+									ref={dropdownRef}>
 									{themes.map((theme) => (
-										<li key={theme} className="px-4 py-2 hover:bg-base-200 cursor-pointer flex items-center justify-between" onClick={() => handleThemeChange(theme)}>
+										<li key={theme} className="px-4 py-2 hover:bg-base-200 cursor-pointer flex items-center justify-between"
+											onClick={() => handleThemeChange(theme)}>
 											<span>{theme.charAt(0).toUpperCase() + theme.slice(1)}</span>
 											{renderThemePreview(theme)}
 										</li>

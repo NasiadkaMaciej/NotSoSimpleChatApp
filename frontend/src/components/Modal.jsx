@@ -36,7 +36,7 @@ const Modal = ({ isOpen, title, message, confirmText = "Confirm", onConfirm, onC
                             onClick={onConfirm}
                             disabled={!isConfirmEnabled}
                         >
-                            {isConfirmEnabled ? confirmText : '3...'}
+                            {isConfirmEnabled ? confirmText : '...'}
                         </button>
                     </div>
                 </div>
