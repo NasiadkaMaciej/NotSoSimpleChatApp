@@ -1,5 +1,4 @@
-export function sendError(res, error, functionName) {
-	console.error(`Error in ${functionName}: `, error.message);
+export const sendError = (res, error, source) => {
+	console.error(`Error in ${source}: ${error.message}`);
 	res.status(500).json({ error: "Internal server error" });
-	return;
-}
+};

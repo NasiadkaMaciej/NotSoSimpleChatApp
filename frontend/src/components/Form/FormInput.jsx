@@ -10,12 +10,11 @@ const FormInput = ({
 	name,
 	icon,
 	disabled,
-	errors = [] // Display validation errors live
 }) => {
 	const [showPassword, setShowPassword] = useState(false);
 	const inputType = type === "password" && showPassword ? "text" : type;
 	const iconClass = "size-5 text-base-content/40";
-	const inputClass = `input input-bordered w-full pl-10 ${errors.length > 0 ? 'input-error' : ''}`;
+	const inputClass = "input input-bordered w-full pl-10";
 
 	return (
 		<div className="form-control">
@@ -47,16 +46,6 @@ const FormInput = ({
 					</button>
 				)}
 			</div>
-			{/* Display validation errors live */}
-			{errors.length > 0 && (
-				<div className="mt-1">
-					{errors.map((error, index) => (
-						<p key={index} className="text-error text-sm">
-							{error}
-						</p>
-					))}
-				</div>
-			)}
 		</div>
 	);
 };

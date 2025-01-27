@@ -33,9 +33,6 @@ const App = () => {
 			<Loader className="size-10 animate-spin" />
 		</div>
 	);
-	console.log(authUser)
-	console.log("authUser:", authUser);
-	console.log("isCheckingAuth:", isCheckingAuth);
 
 	return (
 		<div>

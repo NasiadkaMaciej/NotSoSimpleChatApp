@@ -18,23 +18,14 @@ export const useChatStore = create((set, get) => ({
 	isUsersLoading: false,
 	isMessagesLoading: false,
 	isProfileOpen: false,
-	setMessageText: (text) => set({ messageText: text }),
-
-	setProfileOpen: (value) => set({ isProfileOpen: value }),
 
 	getUsers: async () => {
 		set({ isUsersLoading: true });
 		try {
 			// Timestamp to prevent caching
 			const res = await axiosInstance.get(`/message/users?_=${Date.now()}`);
-			if (Array.isArray(res.data)) {
-				set({ users: res.data });
-			} else {
-				console.error("Invalid users data received:", res.data);
-				set({ users: [] });
-			}
+			set({ users: Array.isArray(res.data) ? res.data : [] });
 		} catch (error) {
-			console.error("Error fetching users:", error);
 			displayError(error);
 			set({ users: [] });
 		} finally {
