@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import User from "../models/userModel.js";
 import { sendError } from "../utils/errors.js";
+import Message from "../models/messageModel.js";
 
 
 // Protect routes by checking if the user is authenticated
@@ -23,5 +24,28 @@ export const authenticateUser = async (req, res, next) => {
 		next();
 	} catch (error) {
 		sendError(res, error, "authenticateUser");
+	}
+};
+
+export const deactivateAccount = async (req, res) => {
+	try {
+		// Delete user
+		await User.findByIdAndDelete(req.user._id);
+		// Delete user's (incoming and outcoming) messages
+		await Message.deleteMany({
+			$or: [
+				{ senderId: req.user._id },
+				{ receiverId: req.user._id }
+			]
+		});
+		res.cookie("jwt", "", {
+			maxAge: 0,
+			secure: true,
+			sameSite: 'strict',
+			path: '/'
+		});
+		res.status(200).json({ message: "Account deactivated successfully" });
+	} catch (error) {
+		sendError(res, error, "deactivateAccount");
 	}
 };

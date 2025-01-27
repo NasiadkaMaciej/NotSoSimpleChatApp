@@ -1,14 +1,18 @@
 import { useState, useRef, useEffect } from "react";
 import { useAuthStore } from "../store/useAuthStore";
 import { Pipette, User } from "lucide-react";
+import { toast } from "react-hot-toast";
 
 import FormInput from "../components/Form/FormInput";
 import Avatar from "../components/Avatar";
+import { axiosInstance } from "../utils/axios";
+import Modal from "../components/Modal";
 
 const ProfilePage = () => {
-	const { authUser, isUpdatingProfile, updateProfile } = useAuthStore();
+	const { authUser, isUpdatingProfile, updateProfile, logout } = useAuthStore();
 	const [selectedColor, setSelectedColor] = useState(authUser.avatarColor || "#ffffff");
 	const [aboutMe, setAboutMe] = useState(authUser.aboutMe || "");
+	const [showConfirmModal, setShowConfirmModal] = useState(false);
 	const timeoutRef = useRef(null);
 
 	useEffect(() => {
@@ -36,6 +40,16 @@ const ProfilePage = () => {
 		setAboutMe(e.target.value);
 	};
 
+	const handleDeactivate = async () => {
+		try {
+			await axiosInstance.delete('/auth/deactivate');
+			toast.success("Account deactivated successfully");
+			logout();
+		} catch (error) {
+			toast.error("Failed to deactivate account");
+		}
+	};
+
 	return (
 		<div className="h-screen pt-20">
 			<div className="max-w-2xl mx-auto p-4 py-8">
@@ -50,7 +64,7 @@ const ProfilePage = () => {
 
 					<div className="flex flex-col items-center gap-4">
 						<div className="relative">
-						<Avatar color={selectedColor} size="40" overrideTailwind={true} />
+							<Avatar color={selectedColor} size="40" overrideTailwind={true} />
 							<label
 								htmlFor="color-picker"
 								className={`absolute bottom-0 right-0 bg-base-content hover:scale-105 p-2 rounded-full cursor-pointer transition-all duration-200 ${isUpdatingProfile ? "animate-pulse pointer-events-none" : ""}`}
@@ -96,6 +110,25 @@ const ProfilePage = () => {
 								<span>Account Status</span>
 								{ /* ToDo: Set active status */}
 								<span className="text-green-500">Active</span>
+							</div>
+							<div className="mt-8 text-center">
+								<button
+									onClick={() => setShowConfirmModal(true)}
+									className="btn btn-error"
+								>
+									Deactivate Account
+								</button>
+								<Modal
+									isOpen={showConfirmModal}
+									title="Deactivate Account"
+									message="Are you sure you want to deactivate your account?
+											 This action cannot be undone.
+											 All your profile data and messages will be removed."
+									confirmText="Yes, Deactivate"
+									confirmButtonClass="btn-error"
+									onConfirm={handleDeactivate}
+									onCancel={() => setShowConfirmModal(false)}
+								/>
 							</div>
 						</div>
 					</div>
