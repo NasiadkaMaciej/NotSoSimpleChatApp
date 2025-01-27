@@ -4,9 +4,13 @@ import { useChatStore } from '../store/useChatStore'
 import { formatLastSeen } from '../utils/lastSeen';
 
 export default function UserProfile() {
-	const { selectedUser, setProfileOpen, onlineUsers = [] } = useChatStore();
+	const { selectedUser, setProfileOpen, onlineUsers, addFriend, removeFriend } = useChatStore();
 	const isOnline = selectedUser && onlineUsers.includes(selectedUser._id);
-  
+
+	const handleFriendAction = async () => {
+		if (selectedUser.isFriend) await removeFriend(selectedUser._id);
+		else await addFriend(selectedUser._id);
+	};
 
 	return (
 		<div className="w-80 h-full border-l border-base-300 bg-base-100 flex flex-col">
@@ -42,6 +46,12 @@ export default function UserProfile() {
 				<div className="space-y-4">
 					<button className="btn btn-outline w-full btn-sm" disabled>
 						Mute notifications
+					</button>
+					<button
+						className={`btn w-full btn-sm ${selectedUser.isFriend ? 'btn-error' : 'btn-primary'}`}
+						onClick={handleFriendAction}
+					>
+						{selectedUser.isFriend ? 'Remove from Friends' : 'Add to Friends'}
 					</button>
 					<button className="btn btn-outline btn-error w-full btn-sm" disabled>
 						Block user

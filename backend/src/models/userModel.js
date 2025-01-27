@@ -31,7 +31,7 @@ const userSchema = new mongoose.Schema(
 			type: String,
 			default: ""
 		},
-		isOnline: { // Maybe don't need this field?
+		isOnline: {
 			type: Boolean,
 			default: false
 		},
@@ -39,14 +39,18 @@ const userSchema = new mongoose.Schema(
 			type: Date,
 			default: Date.now
 		},
-        verified: {
-            type: Boolean,
-            default: false
-        },
-        verificationToken: {
-            type: String,
-            default: null
-        }
+		friends: [{
+			type: mongoose.Schema.Types.ObjectId,
+			ref: "User"
+		}],
+		verified: {
+			type: Boolean,
+			default: false
+		},
+		verificationToken: {
+			type: String,
+			default: null
+		}
 	},
 	// ToDo: Add friends, family, work colleagues lists
 	// ToDo: Add profile picture

@@ -7,7 +7,11 @@ import { Users, Loader } from "lucide-react";
 import UserItem from "./UserItem";
 
 const Sidebar = () => {
-	const { getUsers, users, selectedUser, setSelectedUser, isUsersLoading, onlineUsers } = useChatStore();
+	const { getUsers, users, selectedUser, setSelectedUser, isUsersLoading, onlineUsers, showFriends, toggleShowFriends } = useChatStore();
+
+	const displayedUsers = showFriends
+		? users.filter(user => user.isFriend)
+		: users;
 
 	useEffect(() => {
 		getUsers();
@@ -30,20 +34,22 @@ const Sidebar = () => {
 	return (
 		<aside className="h-full w-20 lg:w-72 border-r border-base-300 flex flex-col transition-all duration-200">
 			<div className="border-b border-base-300 w-full p-6">
-				<div className="flex items-center gap-2 lg:justify-start justify-center">
+				<button
+					onClick={toggleShowFriends}
+					className="flex items-center gap-2 lg:justify-start justify-center"
+				>
 					<Users className="size-6" />
-					{ /* ToDo: after clicking, show only from friends/work etc. groups */}
-					<span className="font-medium hidden lg:block">Contacts</span>
-				</div>
+					<span className="font-medium hidden lg:block">
+						{showFriends ? "Friends" : "All users"}
+					</span>
+				</button>
 			</div>
 
-			{/* Users list */}
 			<div className="overflow-y-auto w-full py-3">
 				{isUsersLoading ? (
 					<div className="flex justify-center items-center h-full">Loading...</div>
 				) : (
-					// ToDo: Do not send whole list of online users
-					users.map((user) => (
+					displayedUsers.map((user) => (
 						<UserItem
 							key={user._id}
 							user={user}

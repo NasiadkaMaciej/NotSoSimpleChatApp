@@ -135,7 +135,7 @@ export const updateCredentials = async (req, res) => {
 	// Frontend - ProfilePage.jsx
 	// Frontend - SignupPage.jsx
 	// Backend - authController.js (here)
-	
+
 	try {
 		const user = await User.findById(req.user._id);
 		if (!user) return res.status(404).json({ error: "User not found" });
@@ -170,5 +170,42 @@ export const updateCredentials = async (req, res) => {
 		});
 	} catch (error) {
 		sendError(res, error, "updateCredentials");
+	}
+};
+
+export const addFriend = async (req, res) => {
+	try {
+		const { id: friendId } = req.params;
+		const userId = req.user._id;
+
+		const user = await User.findById(userId);
+		if (!user) return res.status(404).json({ error: "User not found" });
+
+		if (user.friends.includes(friendId))
+			return res.status(400).json({ error: "Already in friends list" });
+
+		user.friends.push(friendId);
+		await user.save();
+
+		res.status(200).json({ message: "Friend added successfully" });
+	} catch (error) {
+		sendError(res, error, "addFriend");
+	}
+};
+
+export const removeFriend = async (req, res) => {
+	try {
+		const { id: friendId } = req.params;
+		const userId = req.user._id;
+
+		const user = await User.findById(userId);
+		if (!user) return res.status(404).json({ error: "User not found" });
+
+		user.friends = user.friends.filter(id => id.toString() !== friendId);
+		await user.save();
+
+		res.status(200).json({ message: "Friend removed successfully" });
+	} catch (error) {
+		sendError(res, error, "removeFriend");
 	}
 };

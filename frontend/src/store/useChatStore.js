@@ -19,9 +19,11 @@ export const useChatStore = create((set, get) => ({
 	isMessagesLoading: false,
 	isProfileOpen: false,
 	onlineUsers: [],
+	showFriends: true,
 
 	setOnlineUsers: (users) => { set({ onlineUsers: users }) },
 	setProfileOpen: (isOpen) => { set({ isProfileOpen: isOpen }) },
+	toggleShowFriends: () => set(state => ({ showFriends: !state.showFriends })),
 
 	getUsers: async () => {
 		set({ isUsersLoading: true });
@@ -78,4 +80,42 @@ export const useChatStore = create((set, get) => ({
 			return { messages: updatedMessages };
 		});
 	},
+
+	addFriend: async (userId) => {
+		try {
+		  await axiosInstance.post(`/auth/friends/add/${userId}`);
+		  
+		  set(state => ({ // Update users list and selected user
+			users: state.users.map(user => 
+			  user._id === userId ? {...user, isFriend: true} : user
+			),
+			selectedUser: state.selectedUser?._id === userId ? 
+			  {...state.selectedUser, isFriend: true} : 
+			  state.selectedUser
+		  }));
+		  
+		  toast.success("Friend added successfully");
+		} catch (error) {
+		  displayError(error);
+		}
+	  },
+	
+	  removeFriend: async (userId) => {
+		try {
+		  await axiosInstance.post(`/auth/friends/remove/${userId}`);
+		  
+		  set(state => ({ // Update users list and selected user
+			users: state.users.map(user => 
+			  user._id === userId ? {...user, isFriend: false} : user
+			),
+			selectedUser: state.selectedUser?._id === userId ? 
+			  {...state.selectedUser, isFriend: false} : 
+			  state.selectedUser
+		  }));
+		  
+		  toast.success("Friend removed successfully");
+		} catch (error) {
+		  displayError(error);
+		}
+	  }
 }));
