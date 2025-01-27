@@ -1,7 +1,10 @@
 import { memo } from "react";
 import Avatar from "./Avatar";
+import StatusIndicator from "./StatusIndicator";
 
-const UserItem = memo(({ user, isSelected, onClick }) => {
+const UserItem = memo(({ user, isSelected, onClick, onlineUsers = [] }) => {
+	const isOnline = onlineUsers.includes(user._id);
+
 	return (
 		<button
 			onClick={() => onClick(user)}
@@ -13,6 +16,7 @@ const UserItem = memo(({ user, isSelected, onClick }) => {
 		>
 			<div className="relative mx-auto lg:mx-0">
 				<Avatar color={user.avatarColor} />
+				<StatusIndicator isOnline={isOnline} />
 			</div>
 
 			<div className="hidden lg:block text-left min-w-0">

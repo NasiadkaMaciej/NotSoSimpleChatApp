@@ -8,10 +8,15 @@ const router = express.Router();
 router.post("/signup", signup);
 router.post("/login", login);
 router.post("/logout", logout);
+// Check if the user is authenticated
 router.get("/check", authenticateUser, checkAuth);
-router.put("/profile", authenticateUser, updateProfile); // Ensure this line is present
+// Update user profile
+router.put("/profile", authenticateUser, updateProfile);
+// Verify email
 router.get('/verify-email', verifyEmail);
+// Deactivate account
 router.delete('/deactivate', authenticateUser, deactivateAccount);
+// Update user credentials
 router.put("/credentials", authenticateUser, updateCredentials);
 
 export default router;

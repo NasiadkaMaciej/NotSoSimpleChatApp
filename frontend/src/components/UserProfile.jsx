@@ -1,9 +1,12 @@
 import { X } from 'lucide-react'
 import Avatar from './Avatar'
 import { useChatStore } from '../store/useChatStore'
+import { formatLastSeen } from '../utils/lastSeen';
 
 export default function UserProfile() {
-	const { selectedUser, setProfileOpen } = useChatStore()
+	const { selectedUser, setProfileOpen, onlineUsers = [] } = useChatStore();
+	const isOnline = selectedUser && onlineUsers.includes(selectedUser._id);
+  
 
 	return (
 		<div className="w-80 h-full border-l border-base-300 bg-base-100 flex flex-col">
@@ -20,6 +23,9 @@ export default function UserProfile() {
 			<div className="p-6 flex flex-col items-center gap-4">
 				<Avatar color={selectedUser?.avatarColor} size="40" overrideTailwind="true" />
 				<h3 className="text-xl font-semibold">{selectedUser?.username}</h3>
+				<span className="text-sm text-base-content/60">
+					{isOnline ? 'Online' : selectedUser?.lastSeen ? `Last seen: ${formatLastSeen(selectedUser.lastSeen)}` : 'Offline'}
+				</span>
 			</div>
 
 			{selectedUser?.aboutMe && (

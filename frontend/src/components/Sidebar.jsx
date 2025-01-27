@@ -7,7 +7,7 @@ import { Users, Loader } from "lucide-react";
 import UserItem from "./UserItem";
 
 const Sidebar = () => {
-	const { getUsers, users, selectedUser, setSelectedUser, isUsersLoading } = useChatStore();
+	const { getUsers, users, selectedUser, setSelectedUser, isUsersLoading, onlineUsers } = useChatStore();
 
 	useEffect(() => {
 		getUsers();
@@ -42,13 +42,14 @@ const Sidebar = () => {
 				{isUsersLoading ? (
 					<div className="flex justify-center items-center h-full">Loading...</div>
 				) : (
-					// Map through users and create buttons for selection
+					// ToDo: Do not send whole list of online users
 					users.map((user) => (
 						<UserItem
 							key={user._id}
 							user={user}
 							isSelected={selectedUser?._id === user._id}
 							onClick={setSelectedUser}
+							onlineUsers={onlineUsers}
 						/>
 					))
 				)}

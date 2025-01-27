@@ -17,3 +17,5 @@ Add isTyping and show if user isTyping?
 Attach nginx config? 
 No animation when loading new message? 
 aboutMe length limit 
+Store messages on browser to improve loading time 
+Do not load all messages 

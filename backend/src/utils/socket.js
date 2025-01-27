@@ -2,6 +2,7 @@ import { Server } from "socket.io";
 import express from "express";
 import http from "http";
 import dotenv from "dotenv";
+import User from "../models/userModel.js";
 
 const socketApp = express();
 const socketServer = http.createServer(socketApp);
@@ -23,15 +24,28 @@ const io = new Server(socketServer, {
 // userID -> socketID
 const userSocketMap = {};
 
-io.on("connection", (socket) => {
+io.on("connection", async (socket) => {
 	const userId = socket.handshake.query.userId;
-	if (userId) userSocketMap[userId] = socket.id;
+	if (userId) {
+		userSocketMap[userId] = socket.id;
+		await User.findByIdAndUpdate(userId, {
+			isOnline: true,
+			lastSeen: new Date()
+		});
+	}
 
 	io.emit("getOnlineUsers", Object.keys(userSocketMap));
 
-	socket.on("disconnect", () => {
-		delete userSocketMap[userId];
-		io.emit("getOnlineUsers", Object.keys(userSocketMap));
+	socket.on("disconnect", async () => {
+		if (userId) {
+			delete userSocketMap[userId];
+			// Update user status to offline and last seen
+			await User.findByIdAndUpdate(userId, {
+				isOnline: false,
+				lastSeen: new Date()
+			});
+			io.emit("getOnlineUsers", Object.keys(userSocketMap));
+		}
 	});
 });
 

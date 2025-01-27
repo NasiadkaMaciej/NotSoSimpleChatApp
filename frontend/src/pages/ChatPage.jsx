@@ -7,24 +7,30 @@ import ChatContainer from "../components/ChatContainer";
 import WelcomeChat from "../components/WelcomeChat";
 
 const ChatPage = () => {
-	const { selectedUser, appendMessage } = useChatStore();
+	const { selectedUser, appendMessage, setOnlineUsers } = useChatStore();
 	const { authUser } = useAuthStore();
 
 	useEffect(() => {
+		// Single socket connection for both messages and online status
 		const socket = window.io({
 			path: '/socket.io/',
 			query: { userId: authUser._id }
-			// ToDo: Reconnections?
 		});
 
+		// Handle new messages
 		socket.on("newMessage", (message) => {
 			if (selectedUser?._id === message.senderId) {
 				appendMessage(message);
 			}
 		});
 
+		// Handle online users updates
+		socket.on("getOnlineUsers", (users) => {
+			setOnlineUsers(users);
+		});
+
 		return () => socket.disconnect();
-	}, [authUser._id, selectedUser]);
+	}, [authUser._id, selectedUser, appendMessage, setOnlineUsers]);
 
 	return (
 		<div className="h-screen bg-base-200">

@@ -7,7 +7,9 @@ export const getUsers = async (req, res) => {
 	// ToDo: Add friends, family, work colleagues lists
 	try {
 		// Do not display logged in user
-		const filteredUsers = await User.find({ _id: { $ne: req.user._id } }).select("-password");
+		const filteredUsers = await User.find({ _id: { $ne: req.user._id } }).select(
+			"-password -verified -verificationToken"
+		);
 		// Prevent caching list of users, so that new users are displayed
 		res.set({
 			'Cache-Control': 'no-cache, no-store, must-revalidate',

@@ -18,7 +18,9 @@ export const useChatStore = create((set, get) => ({
 	isUsersLoading: false,
 	isMessagesLoading: false,
 	isProfileOpen: false,
+	onlineUsers: [],
 
+	setOnlineUsers: (users) => { set({ onlineUsers: users }) },
 	setProfileOpen: (isOpen) => { set({ isProfileOpen: isOpen }) },
 
 	getUsers: async () => {
