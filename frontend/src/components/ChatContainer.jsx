@@ -86,6 +86,7 @@ const ChatContainer = () => {
 								isOwnMessage={message.senderId === authUser._id}
 								searchTerm={searchTerm}
 								isHighlighted={matchedMessages[currentMatch] === index}
+								isLastMessage={index === messages.length - 1}
 							/>
 						</div>
 					))}

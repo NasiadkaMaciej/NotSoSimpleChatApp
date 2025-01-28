@@ -2,6 +2,7 @@
 
 import toast from "react-hot-toast";
 import { axiosInstance } from "../utils/axios";
+import { create } from "zustand";
 
 const displayError = (error) => {
 	const message = error.response?.data?.error || error.message;
@@ -81,39 +82,48 @@ export const useChatStore = create((set, get) => ({
 
 	addFriend: async (userId) => {
 		try {
-		  await axiosInstance.post(`/auth/friends/add/${userId}`);
-		  
-		  set(state => ({ // Update users list and selected user
-			users: state.users.map(user => 
-			  user._id === userId ? {...user, isFriend: true} : user
-			),
-			selectedUser: state.selectedUser?._id === userId ? 
-			  {...state.selectedUser, isFriend: true} : 
-			  state.selectedUser
-		  }));
-		  
-		  toast.success("Friend added successfully");
+			await axiosInstance.post(`/auth/friends/add/${userId}`);
+
+			set(state => ({ // Update users list and selected user
+				users: state.users.map(user =>
+					user._id === userId ? { ...user, isFriend: true } : user
+				),
+				selectedUser: state.selectedUser?._id === userId ?
+					{ ...state.selectedUser, isFriend: true } :
+					state.selectedUser
+			}));
+
+			toast.success("Friend added successfully");
 		} catch (error) {
-		  displayError(error);
+			displayError(error);
 		}
-	  },
-	
-	  removeFriend: async (userId) => {
+	},
+
+	removeFriend: async (userId) => {
 		try {
-		  await axiosInstance.post(`/auth/friends/remove/${userId}`);
-		  
-		  set(state => ({ // Update users list and selected user
-			users: state.users.map(user => 
-			  user._id === userId ? {...user, isFriend: false} : user
-			),
-			selectedUser: state.selectedUser?._id === userId ? 
-			  {...state.selectedUser, isFriend: false} : 
-			  state.selectedUser
-		  }));
-		  
-		  toast.success("Friend removed successfully");
+			await axiosInstance.post(`/auth/friends/remove/${userId}`);
+
+			set(state => ({ // Update users list and selected user
+				users: state.users.map(user =>
+					user._id === userId ? { ...user, isFriend: false } : user
+				),
+				selectedUser: state.selectedUser?._id === userId ?
+					{ ...state.selectedUser, isFriend: false } :
+					state.selectedUser
+			}));
+
+			toast.success("Friend removed successfully");
 		} catch (error) {
-		  displayError(error);
+			displayError(error);
 		}
-	  }
+	},
+	updateMessageStatus: (data) => {
+		set((state) => ({
+			messages: state.messages.map(msg =>
+				(msg.senderId === data.senderId && msg.receiverId === data.receiverId)
+					? { ...msg, status: data.status }
+					: msg
+			)
+		}));
+	}
 }));

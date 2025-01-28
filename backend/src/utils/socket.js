@@ -3,6 +3,7 @@ import express from "express";
 import http from "http";
 import dotenv from "dotenv";
 import User from "../models/userModel.js";
+import Message from "../models/messageModel.js";
 
 const socketApp = express();
 const socketServer = http.createServer(socketApp);
@@ -45,6 +46,32 @@ io.on("connection", async (socket) => {
 				lastSeen: new Date()
 			});
 			io.emit("getOnlineUsers", Object.keys(userSocketMap));
+		}
+	});
+
+	socket.on("messageRead", async (data) => {
+		const { senderId, receiverId } = data;
+
+		// Update messages in database
+		await Message.updateMany(
+			{
+				senderId,
+				receiverId,
+				status: { $ne: 'read' }
+			},
+			{
+				status: 'read'
+			}
+		);
+
+		// Notify sender
+		const senderSocketId = getReceiverSocketId(senderId);
+		if (senderSocketId) {
+			io.to(senderSocketId).emit("messageStatusUpdate", {
+				senderId,
+				receiverId,
+				status: 'read'
+			});
 		}
 	});
 });

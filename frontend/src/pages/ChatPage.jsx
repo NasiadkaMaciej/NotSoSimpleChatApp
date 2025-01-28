@@ -7,7 +7,7 @@ import ChatContainer from "../components/ChatContainer";
 import WelcomeChat from "../components/WelcomeChat";
 
 const ChatPage = () => {
-	const { selectedUser, appendMessage, setOnlineUsers } = useChatStore();
+	const { selectedUser, appendMessage, setOnlineUsers, updateMessageStatus } = useChatStore();
 	const { authUser } = useAuthStore();
 
 	useEffect(() => {
@@ -20,17 +20,27 @@ const ChatPage = () => {
 		// Handle new messages
 		socket.on("newMessage", (message) => {
 			if (selectedUser?._id === message.senderId) {
-				appendMessage(message);
+			  // Mark message as read immediately if chat is open
+			  socket.emit("messageRead", {
+				senderId: message.senderId,
+				receiverId: authUser._id
+			  });
+			  appendMessage({...message, status: 'read'});
 			}
-		});
+		  });
 
 		// Handle online users updates
 		socket.on("getOnlineUsers", (users) => {
 			setOnlineUsers(users);
 		});
 
+		socket.on("messageStatusUpdate", (data) => {
+			updateMessageStatus(data);
+		});
+
 		return () => socket.disconnect();
-	}, [authUser._id, selectedUser, appendMessage, setOnlineUsers]);
+	}, [authUser._id, selectedUser, appendMessage, setOnlineUsers, updateMessageStatus]);
+
 
 	return (
 		<div className="h-screen bg-base-200">

@@ -30,6 +30,33 @@ export const getMessages = async (req, res) => {
 		const { id: receiverId } = req.params;
 		const senderId = req.user._id;
 
+		// Mark messages as read and notify sender
+		const unreadMessages = await Message.find({
+			senderId: receiverId,
+			receiverId: senderId,
+			status: { $ne: 'read' }
+		});
+
+		if (unreadMessages.length > 0) {
+			await Message.updateMany(
+				{
+					senderId: receiverId,
+					receiverId: senderId,
+					status: { $ne: 'read' }
+				},
+				{ status: 'read' }
+			);
+
+			const senderSocketId = getReceiverSocketId(receiverId);
+			if (senderSocketId) {
+				io.to(senderSocketId).emit("messageStatusUpdate", {
+					senderId: receiverId,
+					receiverId: senderId,
+					status: 'read'
+				});
+			}
+		}
+
 		const messages = await Message.find({
 			$or: [
 				{ senderId, receiverId },
@@ -53,15 +80,23 @@ export const sendMessage = async (req, res) => {
 			senderId,
 			receiverId,
 			type: image ? 'image' : 'text',
-			...(image ? { image } : { text })
+			...(image ? { image } : { text }),
+			status: 'sent'
 		});
 
 		await newMessage.save();
 
-		// Emit the message to the receiver
+		// Emit to receiver and update status to 'delivered' when online
 		const receiverSocketId = getReceiverSocketId(receiverId);
-		if (receiverSocketId)
+		if (receiverSocketId) {
 			io.to(receiverSocketId).emit("newMessage", newMessage);
+			newMessage.status = 'delivered';
+			await newMessage.save();
+			io.to(getReceiverSocketId(senderId)).emit("messageStatusUpdate", {
+				messageId: newMessage._id,
+				status: 'delivered'
+			});
+		}
 
 		res.status(201).json(newMessage);
 	} catch (error) {

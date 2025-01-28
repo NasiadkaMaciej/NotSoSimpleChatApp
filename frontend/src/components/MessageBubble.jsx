@@ -1,4 +1,15 @@
-const MessageBubble = ({ message, isOwnMessage, searchTerm, isHighlighted }) => {
+import { Check, CheckCheck } from 'lucide-react';
+
+const MessageBubble = ({ message, isOwnMessage, searchTerm, isHighlighted, isLastMessage }) => {
+
+	const renderStatus = () => {
+		if (!isOwnMessage) return null;
+		if (!isLastMessage) return null;
+		return message.status === 'read'
+			? <CheckCheck size={14} className="text-success" />
+			: <Check size={14} className="text-base-content/60" />;
+	};
+	
 	const formatContent = (text, searchTerm, isHighlighted) => {
 		if (!text) return text;
 
@@ -50,6 +61,7 @@ const MessageBubble = ({ message, isOwnMessage, searchTerm, isHighlighted }) => 
 			<div className={`chat-bubble break-all ${isOwnMessage ? "chat-bubble-primary" : ""}`}>
 				{renderContent()}
 			</div>
+			{renderStatus()}
 		</div>
 	);
 };

@@ -26,9 +26,9 @@ const messageSchema = new mongoose.Schema(
 			type: String,
 			required: function () { return this.type === 'image'; }
 		},
-		readAt: {
-			type: Date,
-			default: null
+		status: {
+			type: String,
+			enum: ['', 'read'], // ToDo: Add 'sent' and 'delivered'?
 		},
 		status: {
 			type: String,
