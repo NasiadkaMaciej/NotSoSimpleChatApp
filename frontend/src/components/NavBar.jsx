@@ -28,6 +28,19 @@ const Navbar = () => {
 		} else localStorage.setItem('theme', theme);
 	}, [theme]);
 
+	useEffect(() => {
+		// Set default theme to autumn if no theme is saved
+		const savedTheme = localStorage.getItem('theme');
+		if (!savedTheme) {
+			document.documentElement.setAttribute('data-theme', 'autumn');
+			localStorage.setItem('theme', 'autumn');
+			setTheme('autumn');
+		} else {
+			document.documentElement.setAttribute('data-theme', savedTheme);
+			setTheme(savedTheme);
+		}
+	}, []);
+
 	const handleThemeChange = (theme) => { // Change theme
 		document.documentElement.setAttribute('data-theme', theme);
 		localStorage.setItem('theme', theme);

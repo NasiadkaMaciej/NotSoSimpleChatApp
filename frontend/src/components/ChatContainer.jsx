@@ -61,7 +61,7 @@ const ChatContainer = () => {
 	}
 
 	return (
-		<>
+		<div className="flex-1 flex md:static fixed inset-0 bg-base-100 z-50">
 			<div className="flex-1 flex flex-col">
 				<ChatHeader onSearchOpen={() => setIsSearchOpen(true)} />
 				{isSearchOpen && (
@@ -94,8 +94,10 @@ const ChatContainer = () => {
 				</div>
 				<MessageInput />
 			</div>
-			{isProfileOpen && <UserProfile />}
-		</>
+			{isProfileOpen && (
+				<UserProfile />
+			)}
+		</div>
 	);
 };
 

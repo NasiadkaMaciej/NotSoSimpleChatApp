@@ -1,11 +1,11 @@
-import { Menu, Search } from 'lucide-react';
+import { Menu, Search, Users } from 'lucide-react';
 import Avatar from './Avatar';
 import { useChatStore } from '../store/useChatStore';
 import StatusIndicator from './StatusIndicator';
 import { formatLastSeen } from '../utils/lastSeen';
 
 export default function ChatHeader({ onSearchOpen }) {
-	const { selectedUser, setProfileOpen, onlineUsers = [] } = useChatStore();
+	const { selectedUser, setProfileOpen, onlineUsers, setSelectedUser } = useChatStore();
 	const isOnline = selectedUser && onlineUsers.includes(selectedUser._id);
 
 	return (
@@ -24,6 +24,12 @@ export default function ChatHeader({ onSearchOpen }) {
 					</div>
 				</div>
 				<div className="flex items-center gap-2">
+					<button
+						onClick={() => setSelectedUser(null)}
+						className="btn btn-ghost btn-sm btn-circle md:hidden"
+					>
+						<Users className="size-5" />
+					</button>
 					<button
 						onClick={onSearchOpen}
 						className="btn btn-ghost btn-sm btn-circle"
