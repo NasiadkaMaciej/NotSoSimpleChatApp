@@ -9,17 +9,18 @@ export const getUsers = async (req, res) => {
 		const users = await User.find({ _id: { $ne: req.user._id } })
 			.select("-password -verified -verificationToken");
 
-		const usersWithFriendStatus = users.map(user => ({
+		const usersWithGroups = users.map(user => ({
 			...user.toObject(),
-			isFriend: currentUser.friends.includes(user._id)
+			isFriend: currentUser.groups.friends.includes(user._id),
+			isWork: currentUser.groups.work.includes(user._id),
+			isFamily: currentUser.groups.family.includes(user._id)
 		}));
-
 		res.set({
 			'Cache-Control': 'no-cache, no-store, must-revalidate',
 			'Pragma': 'no-cache',
 			'Expires': '0'
 		});
-		res.status(200).json(usersWithFriendStatus);
+		res.status(200).json(usersWithGroups);
 	} catch (error) {
 		sendError(res, error, "getUsers");
 	}

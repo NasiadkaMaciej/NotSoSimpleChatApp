@@ -31,7 +31,7 @@ const userSchema = new mongoose.Schema(
 			type: String,
 			default: "",
 			maxLength: [256, 'About Me section cannot exceed 256 characters']
-		  },
+		},
 		isOnline: {
 			type: Boolean,
 			default: false
@@ -40,10 +40,20 @@ const userSchema = new mongoose.Schema(
 			type: Date,
 			default: Date.now
 		},
-		friends: [{
-			type: mongoose.Schema.Types.ObjectId,
-			ref: "User"
-		}],
+		groups: {
+			friends: [{
+				type: mongoose.Schema.Types.ObjectId,
+				ref: "User"
+			}],
+			work: [{
+				type: mongoose.Schema.Types.ObjectId,
+				ref: "User"
+			}],
+			family: [{
+				type: mongoose.Schema.Types.ObjectId,
+				ref: "User"
+			}]
+		},
 		verified: {
 			type: Boolean,
 			default: false

@@ -176,39 +176,48 @@ export const updateCredentials = async (req, res) => {
 	}
 };
 
-export const addFriend = async (req, res) => {
+const handleGroupMembership = async (userId, targetUserId, group, action) => {
 	try {
-		const { id: friendId } = req.params;
-		const userId = req.user._id;
-
 		const user = await User.findById(userId);
-		if (!user) return res.status(404).json({ error: "User not found" });
+		if (!user) throw new Error("User not found");
 
-		if (user.friends.includes(friendId))
-			return res.status(400).json({ error: "Already in friends list" });
+		const targetUser = await User.findById(targetUserId);
+		if (!targetUser) throw new Error("Target user not found");
 
-		user.friends.push(friendId);
+		if (!user.groups[group]) user.groups[group] = [];
+
+		if (action === 'add')
+			user.groups[group].push(targetUserId);
+		else {
+			user.groups[group] = user.groups[group].filter(id =>
+				id.toString() !== targetUserId.toString()
+			);
+		}
+
 		await user.save();
-
-		res.status(200).json({ message: "Friend added successfully" });
+		return user;
 	} catch (error) {
-		sendError(res, error, "addFriend");
+		throw error;
 	}
 };
 
-export const removeFriend = async (req, res) => {
+export const updateGroupMembership = async (req, res) => {
+	const { id: targetUserId } = req.params;
+	const { group, action } = req.body;
+	const userId = req.user._id;
+
 	try {
-		const { id: friendId } = req.params;
-		const userId = req.user._id;
+		const validGroups = ['friends', 'work', 'family'];
+		if (!validGroups.includes(group))
+			return res.status(400).json({ error: "Invalid group" });
 
-		const user = await User.findById(userId);
-		if (!user) return res.status(404).json({ error: "User not found" });
+		const user = await handleGroupMembership(userId, targetUserId, group, action);
 
-		user.friends = user.friends.filter(id => id.toString() !== friendId);
-		await user.save();
-
-		res.status(200).json({ message: "Friend removed successfully" });
+		res.status(200).json({
+			message: `User ${action === 'add' ? 'added to' : 'removed from'} ${group} group`,
+			groups: user.groups
+		});
 	} catch (error) {
-		sendError(res, error, "removeFriend");
+		sendError(res, error, `group-${action}`);
 	}
 };

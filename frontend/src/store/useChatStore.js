@@ -19,6 +19,7 @@ export const useChatStore = create((set, get) => ({
 	isProfileOpen: false,
 	onlineUsers: [],
 	showFriends: true,
+	currentGroup: 'all', // 'all', 'friends', 'work', 'family'
 
 	setOnlineUsers: (users) => { set({ onlineUsers: users }) },
 	setProfileOpen: (isOpen) => { set({ isProfileOpen: isOpen }) },
@@ -29,7 +30,8 @@ export const useChatStore = create((set, get) => ({
 		try {
 			// Timestamp to prevent caching
 			const res = await axiosInstance.get(`/message/users?_=${Date.now()}`);
-			set({ users: Array.isArray(res.data) ? res.data : [] });
+			const users = res.data;
+			set({ users });
 		} catch (error) {
 			displayError(error);
 			set({ users: [] });
@@ -80,43 +82,54 @@ export const useChatStore = create((set, get) => ({
 		});
 	},
 
-	addFriend: async (userId) => {
+	toggleGroupMembership: async (userId, group) => {
 		try {
-			await axiosInstance.post(`/auth/friends/add/${userId}`);
+			const user = get().users.find(u => u._id === userId);
+			if (!user) throw new Error('User not found');
 
-			set(state => ({ // Update users list and selected user
-				users: state.users.map(user =>
-					user._id === userId ? { ...user, isFriend: true } : user
+			const isInGroup = user[`is${group.charAt(0).toUpperCase() + group.slice(1)}`];
+			const action = isInGroup ? 'remove' : 'add';
+
+			const response = await axiosInstance.post(
+				`/auth/groups/${userId}`,
+				{ group, action }
+			);
+
+			// Update local state
+			set(state => ({
+				users: state.users.map(u =>
+					u._id === userId
+						? {
+							...u,
+							[`is${group.charAt(0).toUpperCase() + group.slice(1)}`]: !isInGroup,
+							groups: response.data.groups
+						}
+						: u
 				),
-				selectedUser: state.selectedUser?._id === userId ?
-					{ ...state.selectedUser, isFriend: true } :
-					state.selectedUser
+				selectedUser: state.selectedUser?._id === userId
+					? {
+						...state.selectedUser,
+						[`is${group.charAt(0).toUpperCase() + group.slice(1)}`]: !isInGroup,
+						groups: response.data.groups
+					}
+					: state.selectedUser
 			}));
 
-			toast.success("Friend added successfully");
+			toast.success(response.data.message);
 		} catch (error) {
 			displayError(error);
 		}
 	},
 
-	removeFriend: async (userId) => {
-		try {
-			await axiosInstance.post(`/auth/friends/remove/${userId}`);
-
-			set(state => ({ // Update users list and selected user
-				users: state.users.map(user =>
-					user._id === userId ? { ...user, isFriend: false } : user
-				),
-				selectedUser: state.selectedUser?._id === userId ?
-					{ ...state.selectedUser, isFriend: false } :
-					state.selectedUser
-			}));
-
-			toast.success("Friend removed successfully");
-		} catch (error) {
-			displayError(error);
-		}
+	toggleGroup: () => {
+		set(state => {
+			const groups = ['all', 'friends', 'work', 'family'];
+			const currentIndex = groups.indexOf(state.currentGroup);
+			const nextGroup = groups[(currentIndex + 1) % groups.length];
+			return { currentGroup: nextGroup };
+		});
 	},
+
 	updateMessageStatus: (data) => {
 		set((state) => ({
 			messages: state.messages.map(msg =>
