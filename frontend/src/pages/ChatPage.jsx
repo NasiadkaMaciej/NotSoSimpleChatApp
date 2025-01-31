@@ -11,7 +11,7 @@ const ChatPage = () => {
 	const { authUser } = useAuthStore();
 
 	useEffect(() => {
-		// Single socket connection for both messages and online status
+		// Socket connection for both messages and online status
 		const socket = window.io({
 			path: '/socket.io/',
 			query: { userId: authUser._id }

@@ -37,7 +37,7 @@ export const sendVerificationEmail = async (email, token) => {
                     }
                     .container {
                         max-width: 600px;
-                        margin: 0 auto;
+                        margin: 5% auto;
                         background-color: #fff;
                         padding: 20px;
                         border-radius: 8px;

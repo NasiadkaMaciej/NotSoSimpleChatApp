@@ -1,10 +1,9 @@
 import { Check, CheckCheck } from 'lucide-react';
 
-const MessageBubble = ({ message, isOwnMessage, searchTerm, isHighlighted, isLastMessage }) => {
+const MessageBubble = ({ message, isOwnMessage, searchTerm, isHighlighted }) => {
 
 	const renderStatus = () => {
 		if (!isOwnMessage) return null;
-		if (!isLastMessage) return null;
 		return message.status === 'read'
 			? <CheckCheck size={14} className="text-success" />
 			: <Check size={14} className="text-base-content/60" />;
