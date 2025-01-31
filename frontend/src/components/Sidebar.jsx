@@ -57,11 +57,11 @@ const Sidebar = () => {
 			<div className="border-b border-base-300 w-full p-6">
 				<button
 					onClick={toggleGroup}
-					className="flex items-center gap-2 lg:justify-start justify-center w-full"
+					className="flex lg:flex-row flex-col items-center gap-2 lg:justify-start justify-center w-full"
 				>
 					<Users className="size-6" />
-					<span className="font-medium hidden lg:block capitalize">
-						{currentGroup === 'all' ? 'All Users' : currentGroup}
+					<span className="font-medium lg:block text-xs lg:text-base capitalize">
+						{currentGroup === 'all' ? 'All' : currentGroup}
 					</span>
 				</button>
 			</div>
