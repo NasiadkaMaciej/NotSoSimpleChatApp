@@ -1,5 +1,5 @@
 import express from "express";
-import { checkAuth, signup, login, logout, updateProfile, verifyEmail, updateCredentials, updateGroupMembership } from "../controllers/authController.js";
+import { checkAuth, signup, login, logout, updateProfile, verifyEmail, updateCredentials, updateGroupMembership, toggleBlockUser } from "../controllers/authController.js";
 import { authenticateUser, deactivateAccount } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
@@ -20,5 +20,6 @@ router.delete('/deactivate', authenticateUser, deactivateAccount);
 router.put("/credentials", authenticateUser, updateCredentials);
 // Add/remove friends/work/family
 router.post("/groups/:id", authenticateUser, updateGroupMembership);
-
+// Block/unblock user
+router.post("/block/:id", authenticateUser, toggleBlockUser);
 export default router;

@@ -138,5 +138,27 @@ export const useChatStore = create((set, get) => ({
 					: msg
 			)
 		}));
+	},
+	toggleBlockUser: async (userId) => {
+		try {
+			const response = await axiosInstance.post(`/auth/block/${userId}`);
+			const isBlocked = response.data.blockedUsers.includes(userId);
+
+			set(state => ({
+				users: state.users.map(u =>
+					u._id === userId ? { ...u, isBlocked } : u
+				),
+				selectedUser: state.selectedUser?._id === userId
+					? { ...state.selectedUser, isBlocked }
+					: state.selectedUser
+			}));
+
+			if (!isBlocked && get().selectedUser?._id === userId)
+				await get().getMessages(userId);
+
+			toast.success(response.data.message);
+		} catch (error) {
+			displayError(error);
+		}
 	}
 }));

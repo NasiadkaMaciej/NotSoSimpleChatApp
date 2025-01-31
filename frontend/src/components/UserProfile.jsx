@@ -2,10 +2,12 @@ import { X } from 'lucide-react'
 import Avatar from './Avatar'
 import { useChatStore } from '../store/useChatStore'
 import { formatLastSeen } from '../utils/lastSeen';
+import BlockButton from './BlockButton';
 
 export default function UserProfile() {
-	const { selectedUser, setProfileOpen, onlineUsers, toggleGroupMembership } = useChatStore();
+	const { selectedUser, setProfileOpen, onlineUsers, toggleGroupMembership, toggleBlockUser } = useChatStore();
 	const isOnline = selectedUser && onlineUsers.includes(selectedUser._id);
+	const isBlocked = selectedUser?.isBlocked;
 
 	const groupButtons = [
 		{ group: 'friends', label: 'Friends' },
@@ -50,9 +52,10 @@ export default function UserProfile() {
 							</button>
 						);
 					})}
-					<button className="btn btn-outline btn-error w-full btn-sm" disabled>
-						Block user
-					</button>
+					<BlockButton
+						isBlocked={isBlocked}
+						onClick={() => toggleBlockUser(selectedUser._id)}
+					/>
 				</div>
 			</div>
 		</div>

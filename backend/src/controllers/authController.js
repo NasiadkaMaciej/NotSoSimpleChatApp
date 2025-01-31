@@ -221,3 +221,33 @@ export const updateGroupMembership = async (req, res) => {
 		sendError(res, error, `group-${action}`);
 	}
 };
+
+export const toggleBlockUser = async (req, res) => {
+	const { id: targetUserId } = req.params;
+	const userId = req.user._id;
+
+	try {
+		const user = await User.findById(userId);
+		if (!user) return res.status(404).json({ error: "User not found" });
+
+		const isBlocked = user.blockedUsers.includes(targetUserId);
+
+		if (isBlocked)
+			user.blockedUsers = user.blockedUsers.filter(id =>
+				id.toString() !== targetUserId.toString()
+			);
+		else user.blockedUsers.push(targetUserId);
+
+		await user.save();
+
+		res.status(200).json({
+			message: `User ${isBlocked ? 'unblocked' : 'blocked'} successfully`,
+			blockedUsers: user.blockedUsers
+		});
+	} catch (error) {
+		sendError(res, error, "toggleBlockUser");
+	}
+};
+
+
+// ToDo: Function to check identity?

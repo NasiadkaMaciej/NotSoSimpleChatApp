@@ -13,7 +13,8 @@ export const getUsers = async (req, res) => {
 			...user.toObject(),
 			isFriend: currentUser.groups.friends.includes(user._id),
 			isWork: currentUser.groups.work.includes(user._id),
-			isFamily: currentUser.groups.family.includes(user._id)
+			isFamily: currentUser.groups.family.includes(user._id),
+			isBlocked: currentUser.blockedUsers.includes(user._id)
 		}));
 		res.set({
 			'Cache-Control': 'no-cache, no-store, must-revalidate',
@@ -30,6 +31,12 @@ export const getMessages = async (req, res) => {
 	try {
 		const { id: receiverId } = req.params;
 		const senderId = req.user._id;
+
+		const sender = await User.findById(senderId);
+		const receiver = await User.findById(receiverId);
+
+		if (sender.blockedUsers.includes(receiverId) || receiver.blockedUsers.includes(senderId))
+			return res.status(403).json({ error: "Unable to access messages" });
 
 		// Mark messages as read and notify sender
 		const unreadMessages = await Message.find({
@@ -76,6 +83,12 @@ export const sendMessage = async (req, res) => {
 		const { text, image } = req.body;
 		const { id: receiverId } = req.params;
 		const senderId = req.user._id;
+
+		const sender = await User.findById(senderId);
+		const receiver = await User.findById(receiverId);
+
+		if (sender.blockedUsers.includes(receiverId) || receiver.blockedUsers.includes(senderId))
+			return res.status(403).json({ error: "Unable to access messages" });
 
 		const newMessage = new Message({
 			senderId,

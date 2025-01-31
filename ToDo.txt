@@ -19,3 +19,4 @@ No animation when loading new message?
 aboutMe length limit 
 Store messages on browser to improve loading time 
 Do not load all messages 
+Privacy option to hide online status 
