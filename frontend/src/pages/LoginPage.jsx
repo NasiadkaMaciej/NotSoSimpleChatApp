@@ -5,6 +5,7 @@ import { useAuthStore } from "../store/useAuthStore";
 
 import FormInput from "../components/auth/FormInput";
 import FormLayout from "../components/auth/FormLayout";
+import SocialLogin from "../components/auth/SocialLogin";
 
 const LoginPage = () => {
 	const [formData, setFormData] = useState({ email: "", password: "" });
@@ -51,6 +52,7 @@ const LoginPage = () => {
 						"Sign in"
 					)}
 				</button>
+				<SocialLogin />
 			</form>
 		</FormLayout>
 	);

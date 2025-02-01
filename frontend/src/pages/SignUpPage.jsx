@@ -7,6 +7,7 @@ import { useAuthStore } from "../store/useAuthStore";
 
 import FormInput from "../components/auth/FormInput";
 import FormLayout from "../components/auth/FormLayout";
+import SocialLogin from "../components/auth/SocialLogin";
 
 const SignUpPage = () => {
 	const [formData, setFormData] = useState({
@@ -94,6 +95,7 @@ const SignUpPage = () => {
 						"Create Account"
 					)}
 				</button>
+				<SocialLogin />
 			</form>
 		</FormLayout>
 	);
