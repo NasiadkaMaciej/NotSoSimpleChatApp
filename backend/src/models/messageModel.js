@@ -26,10 +26,9 @@ const messageSchema = new mongoose.Schema(
 			type: String,
 			required: function () { return this.type === 'image'; }
 		},
-		status: {
-			type: String,
-			default: "sent",
-			enum: ["sent", "delivered", "read"]
+		isRead: {
+			type: Boolean,
+			default: false
 		}
 	},
 	{ timestamps: true }

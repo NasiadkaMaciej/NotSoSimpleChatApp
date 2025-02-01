@@ -58,11 +58,9 @@ io.on("connection", async (socket) => {
 			{
 				senderId,
 				receiverId,
-				status: { $ne: 'read' }
+				isRead: false
 			},
-			{
-				status: 'read'
-			}
+			{ isRead: true }
 		);
 
 		// Notify sender
@@ -71,7 +69,7 @@ io.on("connection", async (socket) => {
 			io.to(senderSocketId).emit("messageStatusUpdate", {
 				senderId,
 				receiverId,
-				status: 'read'
+				isRead: true
 			});
 		}
 	});

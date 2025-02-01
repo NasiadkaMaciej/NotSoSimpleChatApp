@@ -4,7 +4,7 @@ const MessageBubble = ({ message, isOwnMessage, searchTerm, isHighlighted }) => 
 
 	const renderStatus = () => {
 		if (!isOwnMessage) return null;
-		return message.status === 'read'
+		return message.isRead
 			? <CheckCheck size={14} className="text-success" />
 			: <Check size={14} className="text-base-content/60" />;
 	};

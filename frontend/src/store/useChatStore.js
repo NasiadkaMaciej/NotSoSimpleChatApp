@@ -22,10 +22,12 @@ export const useChatStore = create((set, get) => ({
 	onlineUsers: [],
 	showFriends: true,
 	currentGroup: 'all', // 'all', 'friends', 'work', 'family'
+	inChatPage: false,
 
 	setOnlineUsers: (users) => { set({ onlineUsers: users }) },
 	setProfileOpen: (isOpen) => { set({ isProfileOpen: isOpen }) },
 	toggleShowFriends: () => set(state => ({ showFriends: !state.showFriends })),
+	setInChatPage: (value) => set({ inChatPage: value }),
 
 	getUsers: async () => {
 		set({ isUsersLoading: true });
@@ -127,7 +129,7 @@ export const useChatStore = create((set, get) => ({
 		set(state => ({
 			messages: state.messages.map(msg =>
 				(msg.senderId === data.senderId && msg.receiverId === data.receiverId)
-					? { ...msg, status: data.status }
+					? { ...msg, isRead: data.isRead }
 					: msg
 			)
 		}));
@@ -173,30 +175,32 @@ export const useChatStore = create((set, get) => ({
 
 	handleNewMessage: (message) => {
 		const state = get();
+		const authUser = useAuthStore.getState().authUser;
 		const user = state.users.find(u => u._id === message.senderId);
 		const correctedSenderName = message.senderName || user?.username || 'Unknown User';
 
-		const formattedMessage = {
-			...message,
-			senderName: correctedSenderName
-		};
+		// Check if message belongs to current chat
+		const isCurrentChat = (
+			state.selectedUser?._id === message.senderId ||
+			state.selectedUser?._id === message.receiverId
+		);
 
-		// If chat with sender is open, mark as read and append
-		if (state.selectedUser?._id === message.senderId) {
-			// Mark as read immediately 
-			window.io().emit("messageRead", {
-				senderId: message.senderId,
-				receiverId: useAuthStore.getState().authUser._id
-			});
+		// If chat is open and message belongs to current conversation
+		if (isCurrentChat && state.inChatPage) {
+			// Mark as read immediately if we're the receiver
+			if (message.receiverId === authUser._id) {
+				window.io().emit("messageRead", {
+					senderId: message.senderId,
+					receiverId: authUser._id
+				});
+			}
+
 			set(state => ({
-				messages: [...state.messages, { ...formattedMessage, status: 'read' }]
+				messages: [...state.messages, { ...message, isRead: message.receiverId === authUser._id }]
 			}));
-		} else {
-			// Otherwise just append as delivered
-			set(state => ({
-				messages: [...state.messages, { ...formattedMessage, status: 'delivered' }]
-			}));
-			toast(`New message from ${formattedMessage.senderName}`);
+		} else if (message.receiverId === authUser._id) {
+			// Show notification only if we're the receiver and chat isn't open
+			toast(`New message from ${correctedSenderName}`);
 		}
-	},
+	}
 }));

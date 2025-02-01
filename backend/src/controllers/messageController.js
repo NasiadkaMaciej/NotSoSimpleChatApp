@@ -41,20 +41,20 @@ export const getMessages = async (req, res) => {
 		// Mark messages as read and notify sender
 		await Message.updateMany(
 			{
-				senderId: receiverId,
-				receiverId: senderId,
-				status: { $ne: 'read' }
+				senderId,
+				receiverId,
+				isRead: false
 			},
-			{ status: 'read' }
+			{ isRead: true }
 		);
 
 		// Emit read status update via socket
-		const senderSocketId = getReceiverSocketId(receiverId);
+		const senderSocketId = getReceiverSocketId(senderId);
 		if (senderSocketId) {
 			io.to(senderSocketId).emit("messageStatusUpdate", {
-				senderId: receiverId,
-				receiverId: senderId,
-				status: 'read'
+				senderId,
+				receiverId,
+				isRead: true
 			});
 		}
 
@@ -83,7 +83,7 @@ export const sendMessage = async (req, res) => {
 			receiverId,
 			type: image ? 'image' : 'text',
 			...(image ? { image } : { text }),
-			status: 'sent'
+			isRead: false
 		});
 
 		await newMessage.save();
@@ -92,15 +92,7 @@ export const sendMessage = async (req, res) => {
 		const receiverSocketId = getReceiverSocketId(receiverId);
 		if (receiverSocketId) {
 			io.to(receiverSocketId).emit("newMessage", newMessage);
-			newMessage.status = 'delivered';
 			await newMessage.save();
-
-			// Notify sender about delivery
-			io.to(getReceiverSocketId(senderId)).emit("messageStatusUpdate", {
-				senderId,
-				receiverId,
-				status: 'delivered'
-			});
 		}
 
 		res.status(201).json(newMessage);

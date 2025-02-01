@@ -23,31 +23,6 @@ const ChatContainer = () => {
 	const [matchedMessages, setMatchedMessages] = useState([]);
 	const messagesEndRef = useRef(null);
 
-	useEffect(() => {
-		if (!selectedUser?._id) return;
-
-		const socket = window.io();
-
-		socket.on("messageStatusUpdate", (data) => {
-			updateMessageStatus(data);
-		});
-
-		socket.on("newMessage", (message) => {
-			if (selectedUser._id === message.senderId) {
-				socket.emit("messageRead", {
-					senderId: message.senderId,
-					receiverId: authUser._id
-				});
-				appendMessage({ ...message, status: 'read' });
-			}
-		});
-
-		return () => {
-			socket.off("messageStatusUpdate");
-			socket.off("newMessage");
-		};
-	}, [selectedUser, authUser._id]);
-
 	// Update matches when search term changes
 	useEffect(() => {
 		const matches = searchTerm
@@ -62,8 +37,7 @@ const ChatContainer = () => {
 	}, [searchTerm, messages]);
 
 	useEffect(() => {
-		if (selectedUser)
-			getMessages(selectedUser._id);
+		if (selectedUser) getMessages(selectedUser._id);
 	}, [selectedUser, getMessages]);
 
 	// Scroll to highlighted message
@@ -129,9 +103,7 @@ const ChatContainer = () => {
 				</div>
 				<MessageInput />
 			</div>
-			{isProfileOpen && (
-				<UserProfile />
-			)}
+			{isProfileOpen && <UserProfile />}
 		</div>
 	);
 };

@@ -81,12 +81,7 @@ const userSchema = new mongoose.Schema(
 			default: null
 		}
 	},
-	// ToDo: Add friends, family, work colleagues lists
 	// ToDo: Add profile picture
-	// ToDo: Add online status
-	// ToDo: Add last seen - maybe from timestamp?
-	// ToDo: Email Verification?
-	// ToDo: Notifications preferences
 	{ timestamps: true }
 );
 
