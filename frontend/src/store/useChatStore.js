@@ -1,10 +1,10 @@
 // Manages chat messages, users, and real-time message subscriptions
 
 import toast from "react-hot-toast";
-import { axiosInstance } from "../utils/axios";
 import { create } from "zustand";
 import { useAuthStore } from "./useAuthStore";
 import { playNotification } from "../utils/notification";
+import { api } from "../services/api";
 
 const displayError = (error) => {
 	const message = error.response?.data?.error || error.message;
@@ -30,9 +30,8 @@ export const useChatStore = create((set, get) => ({
 	getUsers: async () => {
 		set({ isUsersLoading: true });
 		try {
-			// Timestamp to prevent caching
-			const res = await axiosInstance.get(`/message/users?_=${Date.now()}`);
-			const users = res.data;
+			const response = await api.users.get();
+			const users = response.data;
 			set({ users });
 		} catch (error) {
 			displayError(error);
@@ -44,16 +43,14 @@ export const useChatStore = create((set, get) => ({
 
 	setSelectedUser: (selectedUser) => {
 		set({ selectedUser });
-		if (selectedUser) {
-			get().getMessages(selectedUser._id);
-		}
+		if (selectedUser) get().getMessages(selectedUser._id);
 	},
 
 	// ToDo: Cache messages to not load when switching
 	getMessages: async (userId) => {
 		set({ isMessagesLoading: true });
 		try {
-			const res = await axiosInstance.get(`/message/${userId}`);
+			const res = await api.messages.get(userId);
 			set({ messages: res.data });
 		} catch (error) {
 			displayError(error);
@@ -66,10 +63,7 @@ export const useChatStore = create((set, get) => ({
 		const { selectedUser, messages } = get();
 		try {
 			const messageData = image ? { image } : { text };
-			const res = await axiosInstance.post(
-				`/message/send/${selectedUser._id}`,
-				messageData
-			);
+			const res = await api.messages.send(selectedUser._id, messageData);
 			set({ messages: [...messages, res.data] });
 		} catch (error) {
 			displayError(error);
@@ -92,10 +86,7 @@ export const useChatStore = create((set, get) => ({
 			const isInGroup = user[`is${group.charAt(0).toUpperCase() + group.slice(1)}`];
 			const action = isInGroup ? 'remove' : 'add';
 
-			const response = await axiosInstance.post(
-				`/auth/groups/${userId}`,
-				{ group, action }
-			);
+			const response = await api.auth.group(userId, { group, action });
 
 			// Update local state
 			set(state => ({
@@ -143,7 +134,7 @@ export const useChatStore = create((set, get) => ({
 	},
 	toggleBlockUser: async (userId) => {
 		try {
-			const response = await axiosInstance.post(`/auth/block/${userId}`);
+			const respone = await api.auth.block(userId);
 			const isBlocked = response.data.blockedUsers.includes(userId);
 
 			set(state => ({
@@ -165,7 +156,7 @@ export const useChatStore = create((set, get) => ({
 	},
 	toggleUserMute: async (userId) => {
 		try {
-			const response = await axiosInstance.post(`/auth/notifications/mute/${userId}`);
+			const response = await api.auth.notifications.mute(userId);
 			set(state => ({
 				users: state.users.map(u =>
 					u._id === userId ? { ...u, isMuted: !u.isMuted } : u

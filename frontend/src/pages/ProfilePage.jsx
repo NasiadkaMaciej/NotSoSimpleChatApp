@@ -5,10 +5,10 @@ import { toast } from "react-hot-toast";
 
 import FormInput from "../components/auth/FormInput";
 import Avatar from "../components/shared/Avatar";
-import { axiosInstance } from "../utils/axios";
 import Modal from "../components/shared/Modal";
 import { isPasswordValid } from "../../../backend/src/utils/validate";
 import { requestNotificationPermission } from "../utils/notification";
+import { api } from "../services/api";
 
 const MAX_ABOUT_LENGTH = 256;
 
@@ -68,7 +68,7 @@ const ProfilePage = () => {
 		}
 
 		try {
-			const res = await axiosInstance.put("/auth/credentials", { newUsername });
+			const res = await api.users.update({ newUsername });
 			toast.success("Username updated successfully");
 			setShowUpdateUsername(false);
 			setNewUsername("");
@@ -94,10 +94,7 @@ const ProfilePage = () => {
 		}
 
 		try {
-			await axiosInstance.put("/auth/credentials", {
-				currentPassword,
-				newPassword
-			});
+			await api.auth.updateCredentials({ currentPassword, newPassword });
 			toast.success("Password updated successfully");
 			setShowUpdatePassword(false);
 			setCurrentPassword("");
@@ -110,7 +107,7 @@ const ProfilePage = () => {
 
 	const handleDeactivate = async () => {
 		try {
-			await axiosInstance.delete('/auth/deactivate');
+			await api.auth.deactivate();
 			toast.success("Account deactivated successfully");
 			logout();
 		} catch (error) {

@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { axiosInstance } from '../utils/axios';
 import { Loader } from 'lucide-react';
 import FormLayout from '../components/auth/FormLayout';
+import { api } from '../services/api';
 
 const EmailVerificationPage = () => {
 	const [searchParams] = useSearchParams();
@@ -13,7 +13,7 @@ const EmailVerificationPage = () => {
 		const verifyEmail = async () => {
 			const token = searchParams.get('token');
 			try {
-				await axiosInstance.get(`/auth/verify-email/?token=${token}`);
+				await api.auth.verifyEmail(token);
 				setStatus('success');
 				setTimeout(() => navigate('/login'), 3000);
 			} catch (error) {

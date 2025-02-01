@@ -1,6 +1,6 @@
-import { axiosInstance } from '../utils/axios';
 import toast from 'react-hot-toast';
 import { create } from 'zustand';
+import { api } from '../services/api';
 
 const displayError = (error) => {
 	const message = error.response?.data?.error || error.message;
@@ -23,7 +23,7 @@ export const useAuthStore = create((updateState) => ({
 		}
 
 		try {
-			const response = await axiosInstance('/auth/check');
+			const response = await api.auth.check();
 			updateState({ authUser: response.data });
 		} catch (error) {
 			displayError(error);
@@ -35,7 +35,7 @@ export const useAuthStore = create((updateState) => ({
 	signup: async (formData) => {
 		updateState({ isSigningUp: true });
 		try {
-			const response = await axiosInstance.post('/auth/signup', formData);
+			await api.auth.signup(formData);
 			toast.success("Account created successfully. Please verify your email.");			
 			updateState({ 
 				isSigningUp: false,
@@ -57,7 +57,7 @@ export const useAuthStore = create((updateState) => ({
 
 	login: async (formData) => {
 		try {
-			const response = await axiosInstance.post('/auth/login', formData);
+			const response = await api.auth.login(formData);
 			updateState({ authUser: response.data });
 			toast.success("Logged in successfully");
 		} catch (error) {
@@ -67,7 +67,7 @@ export const useAuthStore = create((updateState) => ({
 
 	logout: async () => {
 		try {
-			await axiosInstance.post('/auth/logout');
+			await api.auth.logout();
 			updateState({ authUser: null });
 			toast.success("Logged out successfully");
 		} catch (error) {
@@ -78,7 +78,7 @@ export const useAuthStore = create((updateState) => ({
 	updateProfile: async (formData) => {
 		updateState({ isUpdatingProfile: true });
 		try {
-			const response = await axiosInstance.put('/auth/profile', formData);
+			const response = await api.users.update(formData);
 			updateState({ authUser: response.data });
 			toast.success("Profile updated successfully");
 		} catch (error) {

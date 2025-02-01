@@ -1,46 +1,34 @@
-import { useEffect } from "react";
 import { useAuthStore } from "../store/useAuthStore";
 import { useChatStore } from "../store/useChatStore";
 
 import Sidebar from "../components/chat/Sidebar";
 import ChatContainer from "../components/chat/ChatContainer";
 import WelcomeChat from "../components/chat/WelcomeChat";
+import { useSocket } from "../hooks/useSocket";
+import { useRef } from "react";
 
 const ChatPage = () => {
 	const { selectedUser, appendMessage, setOnlineUsers, updateMessageStatus, handleNewMessage } = useChatStore();
 	const { authUser } = useAuthStore();
 
-	useEffect(() => {
-		// Socket connection for both messages and online status
-		const socket = window.io({
-			path: '/socket.io/',
-			query: { userId: authUser._id }
-		});
+	const socketRef = useRef(null);
 
-		// Handle new messages
-		socket.on("newMessage", (message) => {
+	const socketHandlers = {
+		newMessage: (message) => {
 			handleNewMessage(message);
 			if (selectedUser?._id === message.senderId) {
-				// Mark message as read immediately if chat is open
-				socket.emit("messageRead", {
+				socketRef.current?.emit("messageRead", {
 					senderId: message.senderId,
 					receiverId: authUser._id
 				});
 				appendMessage({ ...message, status: 'read' });
 			}
-		});
+		},
+		getOnlineUsers: setOnlineUsers,
+		messageStatusUpdate: updateMessageStatus
+	};
 
-		// Handle online users updates
-		socket.on("getOnlineUsers", (users) => {
-			setOnlineUsers(users);
-		});
-
-		socket.on("messageStatusUpdate", (data) => {
-			updateMessageStatus(data);
-		});
-
-		return () => socket.disconnect();
-	}, [authUser._id, selectedUser, appendMessage, setOnlineUsers, updateMessageStatus]);
+	useSocket(authUser, socketHandlers);
 
 
 	return (
