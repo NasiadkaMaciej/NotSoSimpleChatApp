@@ -265,7 +265,7 @@ export const toggleUserMute = async (req, res) => {
 		const user = await User.findById(userId);
 		if (!user) return res.status(404).json({ error: "User not found" });
 
-		const isMuted = user.mutedUsers.includes(targetUserId);
+		const isMuted = user.notificationSettings.mutedUsers.includes(targetUserId);
 
 		if (isMuted)
 			user.mutedUsers = user.mutedUsers.filter(id =>

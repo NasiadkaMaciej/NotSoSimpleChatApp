@@ -46,14 +46,31 @@ export const useChatStore = create((set, get) => ({
 	setSelectedUser: (user) => {
 		set({ selectedUser: user });
 		get().selectedUserRef.current = user;
+
+		// Mark messages as read when selecting user
+		if (user) {
+			window.io().emit("messageRead", {
+				senderId: user._id,
+				receiverId: useAuthStore.getState().authUser._id
+			});
+		}
 	},
 
 	// ToDo: Cache messages to not load when switching
+	// ToDo: Pagination?
 	getMessages: async (userId) => {
 		set({ isMessagesLoading: true });
 		try {
 			const res = await api.messages.get(userId);
 			set({ messages: res.data });
+
+			// Mark messages as read when loading conversation
+			if (userId) {
+				window.io().emit("messageRead", {
+					senderId: userId,
+					receiverId: useAuthStore.getState().authUser._id
+				});
+			}
 		} catch (error) {
 			displayError(error);
 			set({ messages: [] });
