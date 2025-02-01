@@ -2,8 +2,6 @@
 
 import toast from "react-hot-toast";
 import { create } from "zustand";
-import { useAuthStore } from "./useAuthStore";
-import { playNotification } from "../utils/notification";
 import { api } from "../services/api";
 
 const displayError = (error) => {
@@ -134,7 +132,7 @@ export const useChatStore = create((set, get) => ({
 	},
 	toggleBlockUser: async (userId) => {
 		try {
-			const respone = await api.auth.block(userId);
+			const response = await api.auth.block(userId);
 			const isBlocked = response.data.blockedUsers.includes(userId);
 
 			set(state => ({
@@ -173,21 +171,18 @@ export const useChatStore = create((set, get) => ({
 
 	handleNewMessage: (message) => {
 		const { selectedUser, appendMessage } = get();
-		const { authUser } = useAuthStore.getState();
-
-		// Check if message is from current chat
+		
+		// Always append message to state if from current chat
 		if (selectedUser?._id === message.senderId) {
-			appendMessage({ ...message, status: 'read' });
-			return;
+		  appendMessage({ ...message, status: 'read' });
 		}
-
-		// Show notification if not in current chat
-		const user = get().users.find(u => u._id === message.senderId);
-		if (authUser?.notificationSettings?.enableNotifications && !user?.isMuted) {
-			toast(`New message from ${user?.username}`);
-			if (authUser?.notificationSettings?.enableSound) {
-				playNotification();
-			}
+	
+		// Emit read status if message is from selected user
+		if (selectedUser?._id === message.senderId) {
+		  socketRef.current?.emit('messageRead', {
+			senderId: message.senderId,
+			receiverId: message.receiverId
+		  });
 		}
-	}
+	  },
 }));

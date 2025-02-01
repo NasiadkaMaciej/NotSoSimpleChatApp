@@ -1,5 +1,5 @@
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { Loader } from "lucide-react";
 import { Toaster } from 'react-hot-toast';
 
@@ -10,25 +10,53 @@ import LoginPage from './pages/LoginPage';
 import ProfilePage from './pages/ProfilePage';
 import { useAuthStore } from './store/useAuthStore';
 import EmailVerificationPage from './pages/EmailVerificationPage';
+import { useChatStore } from './store/useChatStore';
+import { useSocket } from './hooks/useSocket';
+
+const NotFoundRedirect = () => {
+	const location = useLocation();
+	useEffect(() => {
+		if (location.pathname !== '/404.php')
+			window.location.href = 'https://front.nasiadka.pl/404.php';
+	}, [location.pathname]);
+
+	return null;
+};
 
 const App = () => {
+	const { handleNewMessage, setOnlineUsers, updateMessageStatus } = useChatStore();
 	const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
+	const socketRef = useRef(null);
+	const selectedUserRef = useRef(null);
 
-	function NotFoundRedirect() { // Crazy way to fix react 404 error handling
-		const location = useLocation();
-		useEffect(() => {
-			if (location.pathname !== '/404.php')
-				window.location.href = 'https://front.nasiadka.pl/404.php';
-		}, [location.pathname]);
-
-		return null;
-	}
 
 	// Check if user is authenticated
 	useEffect(() => { checkAuth(); }, [checkAuth]);
 
+	const socketHandlers = {
+		newMessage: (message) => {
+			handleNewMessage(message);
+			// Only show notification if message is not from currently selected user
+			// ToDo: When enetering settings, set selectedUserRef.current to null
+			if (selectedUserRef.current?._id !== message.senderId)
+				handleNewMessage(message);
+		},
+		getOnlineUsers: setOnlineUsers,
+		messageStatusUpdate: updateMessageStatus
+	};
+
+	// Initialize socket connection
+	useSocket(authUser, socketHandlers, socketRef);
+
+	useEffect(() => {
+		selectedUserRef.current = useChatStore.getState().selectedUser;
+		return useChatStore.subscribe(
+			state => selectedUserRef.current = state.selectedUser
+		);
+	}, []);
+
 	// Animation when checking authentication
-	if (isCheckingAuth && !authUser) return (
+	if (isCheckingAuth) return (
 		<div className="flex justify-center items-center h-screen" >
 			<Loader className="size-10 animate-spin" />
 		</div>

@@ -22,7 +22,7 @@ export const api = {
 	},
 	users: {
 		// Timestamp to prevent caching
-		get: () => axiosInstance.get(`/message/users_=${Date.now()}`),
+		get: () => axiosInstance.get(`/message/users?_=${Date.now()}`),
 		update: (data) => axiosInstance.put('/auth/profile', data),
 		block: (userId) => axiosInstance.post(`/auth/block/${userId}`)
 	},

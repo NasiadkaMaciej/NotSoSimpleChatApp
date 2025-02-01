@@ -4,32 +4,9 @@ import { useChatStore } from "../store/useChatStore";
 import Sidebar from "../components/chat/Sidebar";
 import ChatContainer from "../components/chat/ChatContainer";
 import WelcomeChat from "../components/chat/WelcomeChat";
-import { useSocket } from "../hooks/useSocket";
-import { useRef } from "react";
 
 const ChatPage = () => {
-	const { selectedUser, appendMessage, setOnlineUsers, updateMessageStatus, handleNewMessage } = useChatStore();
-	const { authUser } = useAuthStore();
-
-	const socketRef = useRef(null);
-
-	const socketHandlers = {
-		newMessage: (message) => {
-			handleNewMessage(message);
-			if (selectedUser?._id === message.senderId) {
-				socketRef.current?.emit("messageRead", {
-					senderId: message.senderId,
-					receiverId: authUser._id
-				});
-				appendMessage({ ...message, status: 'read' });
-			}
-		},
-		getOnlineUsers: setOnlineUsers,
-		messageStatusUpdate: updateMessageStatus
-	};
-
-	useSocket(authUser, socketHandlers);
-
+	const { selectedUser } = useChatStore();
 
 	return (
 		<div className="h-screen bg-base-200">

@@ -33,6 +33,7 @@ io.on("connection", async (socket) => {
 			isOnline: true,
 			lastSeen: new Date()
 		});
+		io.emit("getOnlineUsers", Object.keys(userSocketMap));
 	}
 
 	io.emit("getOnlineUsers", Object.keys(userSocketMap));
@@ -72,6 +73,23 @@ io.on("connection", async (socket) => {
 				receiverId,
 				status: 'read'
 			});
+		}
+	});
+
+	socket.on("userStatus", async ({ userId, isOnline }) => {
+		if (userId) {
+			if (isOnline) userSocketMap[userId] = socket.id;
+			await User.findByIdAndUpdate(userId, {
+				isOnline,
+				...(isOnline ? {} : { lastSeen: new Date() })
+			});
+			io.emit("getOnlineUsers", Object.keys(userSocketMap));
+		}
+	});
+	socket.on("newMessage", (message) => {
+		const receiverSocketId = getReceiverSocketId(message.receiverId);
+		if (receiverSocketId) {
+			io.to(receiverSocketId).emit("newMessage", message);
 		}
 	});
 });
