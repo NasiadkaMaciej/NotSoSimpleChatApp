@@ -12,12 +12,12 @@ const Sidebar = () => {
 		isUsersLoading,
 		onlineUsers,
 		currentGroup,
-		toggleGroup
+		cycleSidebarGroup
 	} = useChatStore();
 
 	const displayedUsers = users.filter(user => {
 		switch (currentGroup) {
-			case 'friends': return user.isFriend;
+			case 'friends': return user.isFriends;
 			case 'work': return user.isWork;
 			case 'family': return user.isFamily;
 			default: return true;
@@ -53,7 +53,7 @@ const Sidebar = () => {
 		<aside className="h-full w-20 lg:w-72 border-r border-base-300 flex flex-col">
 			<div className="border-b border-base-300 w-full p-3 lg:p-6">
 				<button
-					onClick={toggleGroup}
+					onClick={cycleSidebarGroup}
 					className="flex lg:flex-row flex-col items-center gap-2 lg:justify-start justify-center w-full"
 				>
 					<Users className="size-6" />

@@ -4,7 +4,6 @@ Pasword Reset?
 Group Chats? 
 User avatars next to bubbles
 ENV for ports
-Make users lists not refresh so much, add some cache or memo
 Make error logging more uniform 
 Add option to chat with AI 
 Make styles more uniform 
@@ -15,8 +14,6 @@ No animation when loading new message?
 Store messages on browser to improve loading time 
 Do not load all messages 
 Privacy option to hide online status 
-Notifications on all screens
 Clean code
 Verify notification sound permissions
-Muting users
-MessageSquare -> main page
+Allow to create and remove groups? 

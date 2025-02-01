@@ -8,6 +8,7 @@ import ChatPage from './pages/ChatPage';
 import SignUpPage from './pages/SignUpPage';
 import LoginPage from './pages/LoginPage';
 import ProfilePage from './pages/ProfilePage';
+import ContactsPage from './pages/ContactsPage';
 import { useAuthStore } from './store/useAuthStore';
 import EmailVerificationPage from './pages/EmailVerificationPage';
 import { useChatStore } from './store/useChatStore';
@@ -24,7 +25,7 @@ const NotFoundRedirect = () => {
 };
 
 const App = () => {
-	const { handleNewMessage, setOnlineUsers, updateMessageStatus } = useChatStore();
+	const { getUsers, setOnlineUsers, updateMessageStatus } = useChatStore();
 	const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
 	const socketRef = useRef(null);
 	const selectedUserRef = useRef(null);
@@ -51,6 +52,10 @@ const App = () => {
 		);
 	}, []);
 
+	useEffect(() => {
+		if (authUser) getUsers();
+	}, [authUser, getUsers]);
+
 	// Animation when checking authentication
 	if (isCheckingAuth) return (
 		<div className="flex justify-center items-center h-screen" >
@@ -67,6 +72,7 @@ const App = () => {
 				<Route path='/login' element={!authUser ? <LoginPage /> : <Navigate to="/" />} />
 				<Route path='/profile' element={authUser ? <ProfilePage /> : <Navigate to="/login" />} />
 				<Route path='/verify-email' element={<EmailVerificationPage />} /> {/* Ensure this line is present */}
+				<Route path='/contacts' element={authUser ? <ContactsPage /> : <Navigate to="/login" />} />
 				<Route path="*" element={<NotFoundRedirect />} />
 			</Routes>
 			<Toaster /> { /* Makes all toasts appear in the app */}

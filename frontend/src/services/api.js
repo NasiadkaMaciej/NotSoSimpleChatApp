@@ -29,6 +29,7 @@ export const api = {
 		// Timestamp to prevent caching
 		get: () => axiosInstance.get(`/message/users?_=${Date.now()}`),
 		update: (data) => axiosInstance.put('/auth/profile', data),
+		search: (query) => axiosInstance.get(`/auth/search?query=${encodeURIComponent(query)}`),
 	},
 	messages: {
 		send: (userId, data) => axiosInstance.post(`/message/send/${userId}`, data),

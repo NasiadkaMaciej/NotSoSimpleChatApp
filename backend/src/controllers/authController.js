@@ -194,14 +194,19 @@ const handleGroupMembership = async (userId, targetUserId, group, action) => {
 
 		if (!user.groups[group]) user.groups[group] = [];
 
-		if (action === 'add')
-			user.groups[group].push(targetUserId);
-		else {
+		const isInGroup = user.groups[group].some(id =>
+			id.toString() === targetUserId.toString()
+		);
+
+		// Toggle logic - if in group, remove; if not in group, add
+		if (isInGroup) {
 			user.groups[group] = user.groups[group].filter(id =>
 				id.toString() !== targetUserId.toString()
 			);
-		}
+		else user.groups[group].push(targetUserId);
 
+		// Important: Mark groups as modified, because MongoDB doesn't detect array modifications
+		user.markModified('groups');
 		await user.save();
 		return user;
 	} catch (error) {
@@ -209,24 +214,28 @@ const handleGroupMembership = async (userId, targetUserId, group, action) => {
 	}
 };
 
+// Update the updateGroupMembership function
 export const updateGroupMembership = async (req, res) => {
 	const { id: targetUserId } = req.params;
-	const { group, action } = req.body;
+	const { group } = req.body; // Remove action parameter since we're toggling
 	const userId = req.user._id;
 
 	try {
 		const validGroups = ['friends', 'work', 'family'];
-		if (!validGroups.includes(group))
+		if (!validGroups.includes(group)) {
 			return res.status(400).json({ error: "Invalid group" });
+		}
 
-		const user = await handleGroupMembership(userId, targetUserId, group, action);
+		const user = await handleGroupMembership(userId, targetUserId, group);
+		const isInGroup = user.groups[group].some(id => id.toString() === targetUserId.toString());
 
 		res.status(200).json({
-			message: `User ${action === 'add' ? 'added to' : 'removed from'} ${group} group`,
-			groups: user.groups
+			message: `User ${isInGroup ? 'added to' : 'removed from'} ${group} group`,
+			groups: user.groups,
+			isInGroup
 		});
 	} catch (error) {
-		sendError(res, error, `group-${action}`);
+		sendError(res, error, `group-toggle`);
 	}
 };
 
@@ -284,5 +293,34 @@ export const toggleUserMute = async (req, res) => {
 	}
 };
 
+export const searchUsers = async (req, res) => {
+	try {
+		const { query } = req.query;
+		if (!query) return res.status(400).json({ error: "Search query is required" });
+
+		const users = await User.find({
+			_id: { $ne: req.user._id },
+			$or: [
+				{ username: { $regex: query, $options: "i" } },
+				{ email: { $regex: query, $options: "i" } }
+			]
+		}).select("-password -verificationToken");
+
+		const currentUser = await User.findById(req.user._id);
+
+		const usersWithRelations = users.map(user => ({
+			...user.toObject(),
+			isFriends: currentUser.groups.friends.includes(user._id),
+			isWork: currentUser.groups.work.includes(user._id),
+			isFamily: currentUser.groups.family.includes(user._id),
+			isBlocked: currentUser.blockedUsers.includes(user._id),
+			isMuted: currentUser.notificationSettings?.mutedUsers?.includes(user._id)
+		}));
+
+		res.status(200).json(usersWithRelations);
+	} catch (error) {
+		sendError(res, error, "searchUsers");
+	}
+};
 
 // ToDo: Function to check identity?

@@ -1,5 +1,5 @@
 import express from "express";
-import { checkAuth, signup, login, logout, updateProfile, verifyEmail, updateCredentials, updateGroupMembership, toggleBlockUser, toggleUserMute } from "../controllers/authController.js";
+import { checkAuth, signup, login, logout, updateProfile, verifyEmail, updateCredentials, updateGroupMembership, toggleBlockUser, toggleUserMute, searchUsers } from "../controllers/authController.js";
 import { authenticateUser, deactivateAccount } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
@@ -24,4 +24,6 @@ router.post("/groups/:id", authenticateUser, updateGroupMembership);
 router.post("/block/:id", authenticateUser, toggleBlockUser);
 // Mute/unmute user
 router.post("/notifications/mute/:id", authenticateUser, toggleUserMute);
+// Search for users
+router.get("/search", authenticateUser, searchUsers);
 export default router;

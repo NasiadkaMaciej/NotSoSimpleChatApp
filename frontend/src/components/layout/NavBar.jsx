@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { MessageSquare, User, LogOut, Sun } from "lucide-react";
+import { MessageSquare, User, LogOut, Sun, Users } from "lucide-react";
 import { useAuthStore } from '../../store/useAuthStore';
 
 const themes = ["light", "dark", "cupcake", "bumblebee", "emerald", "corporate", "synthwave", "retro", "cyberpunk", "valentine", "halloween", "garden", "forest", "aqua", "lofi", "pastel", "fantasy", "wireframe", "black", "luxury", "dracula", "cmyk", "autumn", "business", "acid", "lemonade", "night", "coffee", "winter", "dim", "nord", "sunset"];
@@ -93,6 +93,10 @@ const Navbar = () => {
 						</div>
 						{authUser && (
 							<>
+								<Link to="/contacts" className={`btn btn-sm gap-2`}>
+									<Users className="size-5" />
+									<span className="hidden sm:inline">Contacts</span>
+								</Link>
 								<Link to={"/profile"} className={`btn btn-sm gap-2`}>
 									<User className="size-5" />
 									<span className="hidden sm:inline">Profile</span>

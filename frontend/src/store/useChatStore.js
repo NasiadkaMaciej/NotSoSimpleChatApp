@@ -23,6 +23,9 @@ export const useChatStore = create((set, get) => ({
 	showFriends: true,
 	currentGroup: 'all', // 'all', 'friends', 'work', 'family'
 	inChatPage: false,
+	// Search results
+	currentGroup: 'all',
+	searchResults: [],
 
 	setOnlineUsers: (users) => { set({ onlineUsers: users }) },
 	setProfileOpen: (isOpen) => { set({ isProfileOpen: isOpen }) },
@@ -99,41 +102,46 @@ export const useChatStore = create((set, get) => ({
 
 	toggleGroupMembership: async (userId, group) => {
 		try {
-			const user = get().users.find(u => u._id === userId);
-			if (!user) throw new Error('User not found');
+			// Optimistically update UI first
+			set(state => {
+				const propertyName = `is${group.charAt(0).toUpperCase() + group.slice(1)}`;
+				const users = state.users.map(u => {
+					if (u._id === userId) return { ...u, [propertyName]: !u[propertyName] };
+					return u;
+				});
 
-			const isInGroup = user[`is${group.charAt(0).toUpperCase() + group.slice(1)}`];
-			const action = isInGroup ? 'remove' : 'add';
+				const selectedUser = state.selectedUser?._id === userId
+					? { ...state.selectedUser, [propertyName]: !state.selectedUser[propertyName] }
+					: state.selectedUser;
 
-			const response = await api.auth.groups(userId, { group, action });
+				return { users, selectedUser };
+			});
 
-			// Update local state
-			set(state => ({
-				users: state.users.map(u =>
-					u._id === userId
-						? {
-							...u,
-							[`is${group.charAt(0).toUpperCase() + group.slice(1)}`]: !isInGroup,
-							groups: response.data.groups
-						}
-						: u
-				),
-				selectedUser: state.selectedUser?._id === userId
-					? {
-						...state.selectedUser,
-						[`is${group.charAt(0).toUpperCase() + group.slice(1)}`]: !isInGroup,
-						groups: response.data.groups
-					}
-					: state.selectedUser
-			}));
+			await api.auth.groups(userId, { group });
 
-			toast.success(response.data.message);
 		} catch (error) {
-			displayError(error);
+			// Revert optimistic update on error
+			set(state => {
+				const propertyName = `is${group.charAt(0).toUpperCase() + group.slice(1)}`;
+				const users = state.users.map(u => {
+					if (u._id === userId) {
+						return { ...u, [propertyName]: !u[propertyName] };
+					}
+					return u;
+				});
+
+				const selectedUser = state.selectedUser?._id === userId
+					? { ...state.selectedUser, [propertyName]: !state.selectedUser[propertyName] }
+					: state.selectedUser;
+
+				return { users, selectedUser };
+			});
+
+			toast.error('Failed to update group membership');
 		}
 	},
 
-	toggleGroup: () => {
+	cycleSidebarGroup: () => {
 		set(state => {
 			const groups = ['all', 'friends', 'work', 'family'];
 			const currentIndex = groups.indexOf(state.currentGroup);
@@ -220,5 +228,24 @@ export const useChatStore = create((set, get) => ({
 			// Show notification only if we're the receiver, chat isn't open, and user isn't muted
 			toast(`New message from ${correctedSenderName}`);
 		}
-	}
+	},
+
+	// Contact search
+	setContactsGroup: (group) => set({ currentGroup: group }),
+
+	searchUsers: async (query) => {
+		if (!query.trim()) {
+			set({ searchResults: [] });
+			return;
+		}
+
+		try {
+			const { data } = await api.users.search(query);
+			set({ searchResults: data });
+		} catch (error) {
+			console.error('Search error:', error);
+			set({ searchResults: [] });
+		}
+	},
+
 }));

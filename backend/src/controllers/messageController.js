@@ -11,7 +11,7 @@ export const getUsers = async (req, res) => {
 
 		const usersWithGroups = users.map(user => ({
 			...user.toObject(),
-			isFriend: currentUser.groups.friends.includes(user._id),
+			isFriends: currentUser.groups.friends.includes(user._id),
 			isWork: currentUser.groups.work.includes(user._id),
 			isFamily: currentUser.groups.family.includes(user._id),
 			isBlocked: currentUser.blockedUsers.includes(user._id),
