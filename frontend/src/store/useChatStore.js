@@ -105,7 +105,7 @@ export const useChatStore = create((set, get) => ({
 			const isInGroup = user[`is${group.charAt(0).toUpperCase() + group.slice(1)}`];
 			const action = isInGroup ? 'remove' : 'add';
 
-			const response = await api.auth.group(userId, { group, action });
+			const response = await api.auth.groups(userId, { group, action });
 
 			// Update local state
 			set(state => ({
@@ -195,6 +195,7 @@ export const useChatStore = create((set, get) => ({
 		const authUser = useAuthStore.getState().authUser;
 		const user = state.users.find(u => u._id === message.senderId);
 		const correctedSenderName = message.senderName || user?.username || 'Unknown User';
+		const isMuted = user?.isMuted;
 
 		// Check if message belongs to current chat
 		const isCurrentChat = (
@@ -215,8 +216,8 @@ export const useChatStore = create((set, get) => ({
 			set(state => ({
 				messages: [...state.messages, { ...message, isRead: message.receiverId === authUser._id }]
 			}));
-		} else if (message.receiverId === authUser._id) {
-			// Show notification only if we're the receiver and chat isn't open
+		} else if (message.receiverId === authUser._id && !isMuted) {
+			// Show notification only if we're the receiver, chat isn't open, and user isn't muted
 			toast(`New message from ${correctedSenderName}`);
 		}
 	}

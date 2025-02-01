@@ -17,6 +17,11 @@ export const api = {
 		login: (data) => axiosInstance.post('/auth/login', data),
 		signup: (data) => axiosInstance.post('/auth/signup', data),
 		logout: () => axiosInstance.post('/auth/logout'),
+
+		groups: (userId, data) => axiosInstance.post(`/auth/groups/${userId}`, data),
+		notifications: { mute: (userId) => axiosInstance.post(`/auth/notifications/mute/${userId}`) },
+		block: (userId) => axiosInstance.post(`/auth/block/${userId}`),
+
 		deactivate: () => axiosInstance.delete('/auth/deactivate'),
 		verifyEmail: (token) => axiosInstance.get(`/auth/verify-email?token=${token}`),
 	},
@@ -24,7 +29,6 @@ export const api = {
 		// Timestamp to prevent caching
 		get: () => axiosInstance.get(`/message/users?_=${Date.now()}`),
 		update: (data) => axiosInstance.put('/auth/profile', data),
-		block: (userId) => axiosInstance.post(`/auth/block/${userId}`)
 	},
 	messages: {
 		send: (userId, data) => axiosInstance.post(`/message/send/${userId}`, data),

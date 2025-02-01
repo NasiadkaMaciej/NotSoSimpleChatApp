@@ -5,7 +5,7 @@ import { formatLastSeen } from '../../utils/lastSeen';
 import BlockButton from './BlockButton';
 
 export default function UserProfile() {
-	const { selectedUser, setProfileOpen, onlineUsers, toggleGroupMembership, toggleUserMute } = useChatStore();
+	const { selectedUser, setProfileOpen, onlineUsers, toggleGroupMembership, toggleUserMute, toggleBlockUser } = useChatStore();
 	const isOnline = selectedUser && onlineUsers.includes(selectedUser._id);
 	const isBlocked = selectedUser?.isBlocked;
 	const isMuted = selectedUser?.isMuted;

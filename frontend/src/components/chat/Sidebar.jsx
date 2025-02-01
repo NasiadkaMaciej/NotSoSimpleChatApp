@@ -51,7 +51,7 @@ const Sidebar = () => {
 
 	return (
 		<aside className="h-full w-20 lg:w-72 border-r border-base-300 flex flex-col">
-			<div className="border-b border-base-300 w-full p-6">
+			<div className="border-b border-base-300 w-full p-3 lg:p-6">
 				<button
 					onClick={toggleGroup}
 					className="flex lg:flex-row flex-col items-center gap-2 lg:justify-start justify-center w-full"

@@ -268,16 +268,16 @@ export const toggleUserMute = async (req, res) => {
 		const isMuted = user.notificationSettings.mutedUsers.includes(targetUserId);
 
 		if (isMuted)
-			user.mutedUsers = user.mutedUsers.filter(id =>
+			user.notificationSettings.mutedUsers = user.notificationSettings.mutedUsers.filter(id =>
 				id.toString() !== targetUserId.toString()
 			);
-		else user.mutedUsers.push(targetUserId);
+		else user.notificationSettings.mutedUsers.push(targetUserId);
 
 		await user.save();
 
 		res.status(200).json({
 			message: `User ${isMuted ? 'unmuted' : 'muted'} successfully`,
-			mutedUsers: user.mutedUsers
+			mutedUsers: user.notificationSettings.mutedUsers
 		});
 	} catch (error) {
 		sendError(res, error, "toggleUserMute");
