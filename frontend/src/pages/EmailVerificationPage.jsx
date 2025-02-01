@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { axiosInstance } from '../utils/axios';
 import { Loader } from 'lucide-react';
-import FormLayout from '../components/Form/FormLayout';
+import FormLayout from '../components/auth/FormLayout';
 
 const EmailVerificationPage = () => {
 	const [searchParams] = useSearchParams();

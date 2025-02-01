@@ -1,8 +1,5 @@
-// Sidebar component - Displays a list of users (ToDo: contact groups) and handles user selection
-// Used as the left panel in the chat application
-
 import { useEffect } from "react";
-import { useChatStore } from "../store/useChatStore";
+import { useChatStore } from "../../store/useChatStore";
 import { Users, Loader } from "lucide-react";
 import UserItem from "./UserItem";
 

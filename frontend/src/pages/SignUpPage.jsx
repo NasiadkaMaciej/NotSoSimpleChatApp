@@ -5,8 +5,8 @@ import { toast } from "react-hot-toast";
 import { validateSignUpData } from "../../../backend/src/utils/validate";
 import { useAuthStore } from "../store/useAuthStore";
 
-import FormInput from "../components/Form/FormInput";
-import FormLayout from "../components/Form/FormLayout";
+import FormInput from "../components/auth/FormInput";
+import FormLayout from "../components/auth/FormLayout";
 
 const SignUpPage = () => {
 	const [formData, setFormData] = useState({

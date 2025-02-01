@@ -1,8 +1,8 @@
 import { Menu, Search, Users } from 'lucide-react';
-import Avatar from './Avatar';
-import { useChatStore } from '../store/useChatStore';
-import StatusIndicator from './StatusIndicator';
-import { formatLastSeen } from '../utils/lastSeen';
+import Avatar from '../shared/Avatar';
+import { useChatStore } from '../../store/useChatStore';
+import StatusIndicator from '../shared/StatusIndicator';
+import { formatLastSeen } from '../../utils/lastSeen';
 
 export default function ChatHeader({ onSearchOpen }) {
 	const { selectedUser, setProfileOpen, onlineUsers, setSelectedUser } = useChatStore();

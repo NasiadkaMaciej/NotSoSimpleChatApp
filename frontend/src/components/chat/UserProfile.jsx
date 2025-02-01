@@ -1,7 +1,7 @@
 import { X } from 'lucide-react'
-import Avatar from './Avatar'
-import { useChatStore } from '../store/useChatStore'
-import { formatLastSeen } from '../utils/lastSeen';
+import Avatar from './../shared/Avatar'
+import { useChatStore } from '../../store/useChatStore'
+import { formatLastSeen } from '../../utils/lastSeen';
 import BlockButton from './BlockButton';
 
 export default function UserProfile() {

@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { Loader } from "lucide-react";
-import { useChatStore } from "../store/useChatStore";
-import { useAuthStore } from "../store/useAuthStore";
+import { useChatStore } from "../../store/useChatStore";
+import { useAuthStore } from "../../store/useAuthStore";
 import ChatHeader from "./ChatHeader";
 import MessageInput from "./MessageInput";
 import UserProfile from "./UserProfile";
-import SearchBar from "./SearchBar";
+import SearchBar from "../SearchBar";
 import MessageBubble from "./MessageBubble";
 
 const ChatContainer = () => {

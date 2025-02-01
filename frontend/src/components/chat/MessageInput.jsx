@@ -3,7 +3,7 @@ import { Send, Smile, Image as ImageIcon, X } from "lucide-react";
 import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
 
-import { useChatStore } from "../store/useChatStore";
+import { useChatStore } from "../../store/useChatStore";
 
 const MessageInput = () => {
 	const { selectedUser, sendMessage } = useChatStore();

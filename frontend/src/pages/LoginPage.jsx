@@ -3,8 +3,8 @@ import { Loader } from "lucide-react";
 
 import { useAuthStore } from "../store/useAuthStore";
 
-import FormInput from "../components/Form/FormInput";
-import FormLayout from "../components/Form/FormLayout";
+import FormInput from "../components/auth/FormInput";
+import FormLayout from "../components/auth/FormLayout";
 
 const LoginPage = () => {
 	const [formData, setFormData] = useState({ email: "", password: "" });

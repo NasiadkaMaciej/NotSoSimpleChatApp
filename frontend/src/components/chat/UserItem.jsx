@@ -1,6 +1,6 @@
 import { memo } from "react";
-import Avatar from "./Avatar";
-import StatusIndicator from "./StatusIndicator";
+import Avatar from "../shared/Avatar";
+import StatusIndicator from "../shared/StatusIndicator";
 
 const UserItem = memo(({ user, isSelected, onClick, onlineUsers = [] }) => {
 	const isOnline = onlineUsers.includes(user._id);

@@ -2,9 +2,9 @@ import { useEffect } from "react";
 import { useAuthStore } from "../store/useAuthStore";
 import { useChatStore } from "../store/useChatStore";
 
-import Sidebar from "../components/Sidebar";
-import ChatContainer from "../components/ChatContainer";
-import WelcomeChat from "../components/WelcomeChat";
+import Sidebar from "../components/chat/Sidebar";
+import ChatContainer from "../components/chat/ChatContainer";
+import WelcomeChat from "../components/chat/WelcomeChat";
 
 const ChatPage = () => {
 	const { selectedUser, appendMessage, setOnlineUsers, updateMessageStatus, handleNewMessage } = useChatStore();

@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { Loader } from "lucide-react";
 import { Toaster } from 'react-hot-toast';
 
-import NavBar from './components/NavBar';
+import NavBar from './components/layout/NavBar';
 import ChatPage from './pages/ChatPage';
 import SignUpPage from './pages/SignUpPage';
 import LoginPage from './pages/LoginPage';

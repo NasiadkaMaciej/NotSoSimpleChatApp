@@ -3,10 +3,10 @@ import { useAuthStore } from "../store/useAuthStore";
 import { Pipette, User } from "lucide-react";
 import { toast } from "react-hot-toast";
 
-import FormInput from "../components/Form/FormInput";
-import Avatar from "../components/Avatar";
+import FormInput from "../components/auth/FormInput";
+import Avatar from "../components/shared/Avatar";
 import { axiosInstance } from "../utils/axios";
-import Modal from "../components/Modal";
+import Modal from "../components/shared/Modal";
 import { isPasswordValid } from "../../../backend/src/utils/validate";
 import { requestNotificationPermission } from "../utils/notification";
 
