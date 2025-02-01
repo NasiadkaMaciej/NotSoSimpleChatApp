@@ -3,6 +3,7 @@
 import toast from "react-hot-toast";
 import { create } from "zustand";
 import { api } from "../services/api";
+import { useAuthStore } from "./useAuthStore";
 
 const displayError = (error) => {
 	const message = error.response?.data?.error || error.message;
@@ -13,6 +14,7 @@ const displayError = (error) => {
 export const useChatStore = create((set, get) => ({
 	users: [],
 	selectedUser: null,
+	selectedUserRef: { current: null },
 	messages: [],
 	isUsersLoading: false,
 	isMessagesLoading: false,
@@ -39,9 +41,9 @@ export const useChatStore = create((set, get) => ({
 		}
 	},
 
-	setSelectedUser: (selectedUser) => {
-		set({ selectedUser });
-		if (selectedUser) get().getMessages(selectedUser._id);
+	setSelectedUser: (user) => {
+		set({ selectedUser: user });
+		get().selectedUserRef.current = user;
 	},
 
 	// ToDo: Cache messages to not load when switching
@@ -122,7 +124,7 @@ export const useChatStore = create((set, get) => ({
 	},
 
 	updateMessageStatus: (data) => {
-		set((state) => ({
+		set(state => ({
 			messages: state.messages.map(msg =>
 				(msg.senderId === data.senderId && msg.receiverId === data.receiverId)
 					? { ...msg, status: data.status }
@@ -170,19 +172,31 @@ export const useChatStore = create((set, get) => ({
 	},
 
 	handleNewMessage: (message) => {
-		const { selectedUser, appendMessage } = get();
-		
-		// Always append message to state if from current chat
-		if (selectedUser?._id === message.senderId) {
-		  appendMessage({ ...message, status: 'read' });
+		const state = get();
+		const user = state.users.find(u => u._id === message.senderId);
+		const correctedSenderName = message.senderName || user?.username || 'Unknown User';
+
+		const formattedMessage = {
+			...message,
+			senderName: correctedSenderName
+		};
+
+		// If chat with sender is open, mark as read and append
+		if (state.selectedUser?._id === message.senderId) {
+			// Mark as read immediately 
+			window.io().emit("messageRead", {
+				senderId: message.senderId,
+				receiverId: useAuthStore.getState().authUser._id
+			});
+			set(state => ({
+				messages: [...state.messages, { ...formattedMessage, status: 'read' }]
+			}));
+		} else {
+			// Otherwise just append as delivered
+			set(state => ({
+				messages: [...state.messages, { ...formattedMessage, status: 'delivered' }]
+			}));
+			toast(`New message from ${formattedMessage.senderName}`);
 		}
-	
-		// Emit read status if message is from selected user
-		if (selectedUser?._id === message.senderId) {
-		  socketRef.current?.emit('messageRead', {
-			senderId: message.senderId,
-			receiverId: message.receiverId
-		  });
-		}
-	  },
+	},
 }));

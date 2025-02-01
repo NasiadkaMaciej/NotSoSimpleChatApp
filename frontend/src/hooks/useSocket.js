@@ -19,16 +19,7 @@ export const useSocket = (authUser, handlers, socketRef) => {
 
 			// Register event handlers
 			Object.entries(handlers).forEach(([event, handler]) => {
-				socketRef.current.on(event, (data) => {
-					handler(data);
-
-					// Show notification for new messages if enabled
-					if (event === 'newMessage' && authUser?.notificationSettings?.enableNotifications) {
-						toast(`New message from ${data.senderName}`);
-						if (authUser?.notificationSettings?.enableSound)
-							playNotification();
-					}
-				});
+				socketRef.current.on(event, handler);
 			});
 		}
 

@@ -35,11 +35,7 @@ const App = () => {
 
 	const socketHandlers = {
 		newMessage: (message) => {
-			handleNewMessage(message);
-			// Only show notification if message is not from currently selected user
-			// ToDo: When enetering settings, set selectedUserRef.current to null
-			if (selectedUserRef.current?._id !== message.senderId)
-				handleNewMessage(message);
+			useChatStore.getState().handleNewMessage(message);
 		},
 		getOnlineUsers: setOnlineUsers,
 		messageStatusUpdate: updateMessageStatus

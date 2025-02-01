@@ -1,4 +1,4 @@
-import { useAuthStore } from "../store/useAuthStore";
+import { useEffect } from "react";
 import { useChatStore } from "../store/useChatStore";
 
 import Sidebar from "../components/chat/Sidebar";
@@ -6,7 +6,12 @@ import ChatContainer from "../components/chat/ChatContainer";
 import WelcomeChat from "../components/chat/WelcomeChat";
 
 const ChatPage = () => {
-	const { selectedUser } = useChatStore();
+	const { selectedUser, setInChatPage } = useChatStore();
+
+	useEffect(() => {
+		setInChatPage(true);
+		return () => setInChatPage(false);
+	}, [setInChatPage]);
 
 	return (
 		<div className="h-screen bg-base-200">

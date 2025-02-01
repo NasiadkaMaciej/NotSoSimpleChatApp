@@ -39,32 +39,26 @@ export const getMessages = async (req, res) => {
 			return res.status(403).json({ error: "Unable to access messages" });
 
 		// Mark messages as read and notify sender
-		const unreadMessages = await Message.find({
-			senderId: receiverId,
-			receiverId: senderId,
-			status: { $ne: 'read' }
-		});
+		await Message.updateMany(
+			{
+				senderId: receiverId,
+				receiverId: senderId,
+				status: { $ne: 'read' }
+			},
+			{ status: 'read' }
+		);
 
-		if (unreadMessages.length > 0) {
-			await Message.updateMany(
-				{
-					senderId: receiverId,
-					receiverId: senderId,
-					status: { $ne: 'read' }
-				},
-				{ status: 'read' }
-			);
-
-			const senderSocketId = getReceiverSocketId(receiverId);
-			if (senderSocketId) {
-				io.to(senderSocketId).emit("messageStatusUpdate", {
-					senderId: receiverId,
-					receiverId: senderId,
-					status: 'read'
-				});
-			}
+		// Emit read status update via socket
+		const senderSocketId = getReceiverSocketId(receiverId);
+		if (senderSocketId) {
+			io.to(senderSocketId).emit("messageStatusUpdate", {
+				senderId: receiverId,
+				receiverId: senderId,
+				status: 'read'
+			});
 		}
 
+		// Get messages after updating status
 		const messages = await Message.find({
 			$or: [
 				{ senderId, receiverId },
@@ -84,12 +78,6 @@ export const sendMessage = async (req, res) => {
 		const { id: receiverId } = req.params;
 		const senderId = req.user._id;
 
-		const sender = await User.findById(senderId);
-		const receiver = await User.findById(receiverId);
-
-		if (sender.blockedUsers.includes(receiverId) || receiver.blockedUsers.includes(senderId))
-			return res.status(403).json({ error: "Unable to access messages" });
-
 		const newMessage = new Message({
 			senderId,
 			receiverId,
@@ -100,14 +88,17 @@ export const sendMessage = async (req, res) => {
 
 		await newMessage.save();
 
-		// Emit to receiver and update status to 'delivered' when online
+		// Emit to receiver socket
 		const receiverSocketId = getReceiverSocketId(receiverId);
 		if (receiverSocketId) {
 			io.to(receiverSocketId).emit("newMessage", newMessage);
 			newMessage.status = 'delivered';
 			await newMessage.save();
+
+			// Notify sender about delivery
 			io.to(getReceiverSocketId(senderId)).emit("messageStatusUpdate", {
-				messageId: newMessage._id,
+				senderId,
+				receiverId,
 				status: 'delivered'
 			});
 		}

@@ -28,10 +28,6 @@ const messageSchema = new mongoose.Schema(
 		},
 		status: {
 			type: String,
-			enum: ['', 'read'], // ToDo: Add 'sent' and 'delivered'?
-		},
-		status: {
-			type: String,
 			default: "sent",
 			enum: ["sent", "delivered", "read"]
 		}

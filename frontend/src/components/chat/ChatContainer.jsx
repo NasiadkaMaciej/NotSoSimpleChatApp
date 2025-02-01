@@ -9,13 +9,44 @@ import SearchBar from "../SearchBar";
 import MessageBubble from "./MessageBubble";
 
 const ChatContainer = () => {
-	const { messages, isMessagesLoading, isProfileOpen } = useChatStore();
+	const {
+		messages,
+		isMessagesLoading,
+		isProfileOpen,
+		getMessages,
+		selectedUser
+	} = useChatStore();
 	const { authUser } = useAuthStore();
 	const [isSearchOpen, setIsSearchOpen] = useState(false);
 	const [searchTerm, setSearchTerm] = useState("");
 	const [currentMatch, setCurrentMatch] = useState(0);
 	const [matchedMessages, setMatchedMessages] = useState([]);
 	const messagesEndRef = useRef(null);
+
+	useEffect(() => {
+		if (!selectedUser?._id) return;
+
+		const socket = window.io();
+
+		socket.on("messageStatusUpdate", (data) => {
+			updateMessageStatus(data);
+		});
+
+		socket.on("newMessage", (message) => {
+			if (selectedUser._id === message.senderId) {
+				socket.emit("messageRead", {
+					senderId: message.senderId,
+					receiverId: authUser._id
+				});
+				appendMessage({ ...message, status: 'read' });
+			}
+		});
+
+		return () => {
+			socket.off("messageStatusUpdate");
+			socket.off("newMessage");
+		};
+	}, [selectedUser, authUser._id]);
 
 	// Update matches when search term changes
 	useEffect(() => {
@@ -29,6 +60,11 @@ const ChatContainer = () => {
 		setMatchedMessages(matches);
 		setCurrentMatch(0);
 	}, [searchTerm, messages]);
+
+	useEffect(() => {
+		if (selectedUser)
+			getMessages(selectedUser._id);
+	}, [selectedUser, getMessages]);
 
 	// Scroll to highlighted message
 	useEffect(() => {
