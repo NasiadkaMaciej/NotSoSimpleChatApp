@@ -17,7 +17,7 @@ export default function UserProfile() {
 	];
 
 	return (
-		<div className="w-full md:w-80 h-full fixed md:static inset-0 bg-base-100 border-l border-base-300 z-[55]">
+		<div className="w-full overflow-y-auto md:w-80 h-full fixed md:static inset-0 bg-base-100 border-l border-base-300 z-[55]">
 			<div className="p-5 border-b border-base-300 flex justify-between items-center">
 				<h2 className="text-lg font-semibold">Profile</h2>
 				<button onClick={() => setProfileOpen(false)} className="btn btn-ghost btn-sm btn-circle">

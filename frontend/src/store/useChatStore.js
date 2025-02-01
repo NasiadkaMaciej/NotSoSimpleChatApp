@@ -117,8 +117,8 @@ export const useChatStore = create((set, get) => ({
 				return { users, selectedUser };
 			});
 
-			await api.auth.groups(userId, { group });
-
+			const response = await api.auth.groups(userId, { group });
+			toast.success(response.data.message);
 		} catch (error) {
 			// Revert optimistic update on error
 			set(state => {
@@ -136,7 +136,6 @@ export const useChatStore = create((set, get) => ({
 
 				return { users, selectedUser };
 			});
-
 			toast.error('Failed to update group membership');
 		}
 	},
