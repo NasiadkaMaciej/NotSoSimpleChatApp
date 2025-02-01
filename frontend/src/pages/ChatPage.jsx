@@ -7,7 +7,7 @@ import ChatContainer from "../components/ChatContainer";
 import WelcomeChat from "../components/WelcomeChat";
 
 const ChatPage = () => {
-	const { selectedUser, appendMessage, setOnlineUsers, updateMessageStatus } = useChatStore();
+	const { selectedUser, appendMessage, setOnlineUsers, updateMessageStatus, handleNewMessage } = useChatStore();
 	const { authUser } = useAuthStore();
 
 	useEffect(() => {
@@ -19,15 +19,16 @@ const ChatPage = () => {
 
 		// Handle new messages
 		socket.on("newMessage", (message) => {
+			handleNewMessage(message);
 			if (selectedUser?._id === message.senderId) {
-			  // Mark message as read immediately if chat is open
-			  socket.emit("messageRead", {
-				senderId: message.senderId,
-				receiverId: authUser._id
-			  });
-			  appendMessage({...message, status: 'read'});
+				// Mark message as read immediately if chat is open
+				socket.emit("messageRead", {
+					senderId: message.senderId,
+					receiverId: authUser._id
+				});
+				appendMessage({ ...message, status: 'read' });
 			}
-		  });
+		});
 
 		// Handle online users updates
 		socket.on("getOnlineUsers", (users) => {

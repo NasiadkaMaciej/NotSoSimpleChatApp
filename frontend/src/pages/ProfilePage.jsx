@@ -8,6 +8,7 @@ import Avatar from "../components/Avatar";
 import { axiosInstance } from "../utils/axios";
 import Modal from "../components/Modal";
 import { isPasswordValid } from "../../../backend/src/utils/validate";
+import { requestNotificationPermission } from "../utils/notification";
 
 const MAX_ABOUT_LENGTH = 256;
 
@@ -23,6 +24,12 @@ const ProfilePage = () => {
 	const [currentPassword, setCurrentPassword] = useState("");
 	const [newPassword, setNewPassword] = useState("");
 	const [confirmNewPassword, setConfirmNewPassword] = useState("");
+	const [notificationSettings, setNotificationSettings] = useState({
+		enableNotifications: authUser?.notificationSettings?.enableNotifications ?? true,
+		enableSound: authUser?.notificationSettings?.enableSound ?? false,
+		mutedUsers: authUser?.notificationSettings?.mutedUsers ?? [] // Add this line
+	});
+	const [hasAudioPermission, setHasAudioPermission] = useState(false);
 
 
 	useEffect(() => {
@@ -110,6 +117,33 @@ const ProfilePage = () => {
 			toast.error("Failed to deactivate account");
 		}
 	};
+
+	const handleNotificationToggle = async (setting) => {
+		if (setting === 'enableSound') {
+			const granted = await requestNotificationPermission();
+			if (!granted) {
+				toast.error('Audio permission is required for sound notifications');
+				return;
+			}
+			setHasAudioPermission(true);
+		}
+
+		const newSettings = { ...notificationSettings, [setting]: !notificationSettings[setting] };
+		setNotificationSettings(newSettings);
+
+		try {
+			await updateProfile({ notificationSettings: newSettings });
+		} catch (error) {
+			toast.error('Failed to update notification settings');
+			setNotificationSettings(notificationSettings);
+		}
+	};
+
+	const requestPermission = async () => {
+		const granted = await requestNotificationPermission();
+		setHasAudioPermission(granted);
+	};
+
 
 	return (
 		<div className="h-screen pt-20">
@@ -217,6 +251,38 @@ const ProfilePage = () => {
 										Update Password
 									</button>
 								</form>
+							</div>
+						</div>
+					</div>
+
+
+					<div className="collapse bg-base-200">
+						<input type="checkbox" />
+						<div className="collapse-title text-xl font-medium">
+							Notification Settings
+						</div>
+						<div className="collapse-content space-y-4">
+							<div className="form-control">
+								<label className="label cursor-pointer justify-start gap-4">
+									<input
+										type="checkbox"
+										className="toggle toggle-primary"
+										checked={notificationSettings.enableNotifications}
+										onChange={() => handleNotificationToggle('enableNotifications')}
+									/>
+									<span className="label-text">Enable notifications</span>
+								</label>
+							</div>
+							<div className="form-control">
+								<label className="label cursor-pointer justify-start gap-4">
+									<input
+										type="checkbox"
+										className="toggle toggle-primary"
+										checked={notificationSettings.enableSound}
+										onChange={() => handleNotificationToggle('enableSound')}
+									/>
+									<span className="label-text">Enable notification sound</span>
+								</label>
 							</div>
 						</div>
 					</div>

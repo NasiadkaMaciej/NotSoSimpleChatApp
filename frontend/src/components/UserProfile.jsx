@@ -5,9 +5,10 @@ import { formatLastSeen } from '../utils/lastSeen';
 import BlockButton from './BlockButton';
 
 export default function UserProfile() {
-	const { selectedUser, setProfileOpen, onlineUsers, toggleGroupMembership, toggleBlockUser } = useChatStore();
+	const { selectedUser, setProfileOpen, onlineUsers, toggleGroupMembership, toggleUserMute } = useChatStore();
 	const isOnline = selectedUser && onlineUsers.includes(selectedUser._id);
 	const isBlocked = selectedUser?.isBlocked;
+	const isMuted = selectedUser?.isMuted;
 
 	const groupButtons = [
 		{ group: 'friends', label: 'Friends' },
@@ -16,7 +17,7 @@ export default function UserProfile() {
 	];
 
 	return (
-		<div className="w-full md:w-80 h-full fixed md:static inset-0 bg-base-100 border-l border-base-300 z-[60]">
+		<div className="w-full md:w-80 h-full fixed md:static inset-0 bg-base-100 border-l border-base-300 z-[55]">
 			<div className="p-5 border-b border-base-300 flex justify-between items-center">
 				<h2 className="text-lg font-semibold">Profile</h2>
 				<button onClick={() => setProfileOpen(false)} className="btn btn-ghost btn-sm btn-circle">
@@ -39,6 +40,12 @@ export default function UserProfile() {
 			<div className="mt-auto p-6 border-t border-base-300">
 				<h4 className="text-sm font-medium text-base-content/60 mb-4">Conversation settings</h4>
 				<div className="space-y-4">
+					<button
+						className={`btn w-full btn-sm ${isMuted ? 'btn-error' : 'btn-primary'}`}
+						onClick={() => toggleUserMute(selectedUser._id)}
+					>
+						{isMuted ? 'Unmute notifications' : 'Mute notifications'}
+					</button>
 					{groupButtons.map(({ group, label }) => {
 						const isInGroup = selectedUser?.[`is${group.charAt(0).toUpperCase() + group.slice(1)}`];
 

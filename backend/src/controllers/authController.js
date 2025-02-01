@@ -89,7 +89,7 @@ export const checkAuth = (req, res) => {
 };
 
 export const updateProfile = async (req, res) => {
-	const { avatarColor, aboutMe } = req.body;
+	const { avatarColor, aboutMe, notificationSettings } = req.body;
 
 	try {
 		const user = await User.findById(req.user._id);
@@ -98,8 +98,15 @@ export const updateProfile = async (req, res) => {
 		if (aboutMe && aboutMe.length > 256)
 			return res.status(400).json({ error: "About Me section cannot exceed 256 characters" });
 
-		user.avatarColor = avatarColor || user.avatarColor;
-		user.aboutMe = aboutMe || user.aboutMe;
+		if (avatarColor) user.avatarColor = avatarColor;
+		if (aboutMe !== undefined) user.aboutMe = aboutMe;
+		if (notificationSettings) {
+			user.notificationSettings = {
+				...notificationSettings,
+				mutedUsers: notificationSettings.mutedUsers || user.notificationSettings.mutedUsers
+			};
+		}
+
 		await user.save();
 
 		res.status(200).json({
@@ -107,7 +114,8 @@ export const updateProfile = async (req, res) => {
 			username: user.username,
 			email: user.email,
 			avatarColor: user.avatarColor,
-			aboutMe: user.aboutMe
+			aboutMe: user.aboutMe,
+			notificationSettings: user.notificationSettings
 		});
 	} catch (error) {
 		sendError(res, error, "updateProfile");
@@ -246,6 +254,33 @@ export const toggleBlockUser = async (req, res) => {
 		});
 	} catch (error) {
 		sendError(res, error, "toggleBlockUser");
+	}
+};
+
+export const toggleUserMute = async (req, res) => {
+	const { id: targetUserId } = req.params;
+	const userId = req.user._id;
+
+	try {
+		const user = await User.findById(userId);
+		if (!user) return res.status(404).json({ error: "User not found" });
+
+		const isMuted = user.mutedUsers.includes(targetUserId);
+
+		if (isMuted)
+			user.mutedUsers = user.mutedUsers.filter(id =>
+				id.toString() !== targetUserId.toString()
+			);
+		else user.mutedUsers.push(targetUserId);
+
+		await user.save();
+
+		res.status(200).json({
+			message: `User ${isMuted ? 'unmuted' : 'muted'} successfully`,
+			mutedUsers: user.mutedUsers
+		});
+	} catch (error) {
+		sendError(res, error, "toggleUserMute");
 	}
 };
 

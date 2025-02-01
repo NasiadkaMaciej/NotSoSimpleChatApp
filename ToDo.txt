@@ -2,12 +2,8 @@ Frontend
 Backend tests 
 Pasword Reset? 
 Group Chats? 
-Email verification
-Toasts should use daisyUI theme
-Friends list 
 User avatars next to bubbles
 ENV for ports
-Check ports on server
 Make users lists not refresh so much, add some cache or memo
 Make error logging more uniform 
 Add option to chat with AI 
@@ -16,7 +12,11 @@ Clean console.logs
 Add isTyping and show if user isTyping? 
 Attach nginx config? 
 No animation when loading new message? 
-aboutMe length limit 
 Store messages on browser to improve loading time 
 Do not load all messages 
 Privacy option to hide online status 
+Notifications on all screens
+Clean code
+Verify notification sound permissions
+Muting users
+MessageSquare -> main page

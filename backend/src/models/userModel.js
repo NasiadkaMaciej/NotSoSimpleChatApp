@@ -58,6 +58,20 @@ const userSchema = new mongoose.Schema(
 			type: mongoose.Schema.Types.ObjectId,
 			ref: "User"
 		}],
+		notificationSettings: {
+			enableNotifications: {
+				type: Boolean,
+				default: true
+			},
+			enableSound: {
+				type: Boolean,
+				default: false
+			},
+			mutedUsers: [{
+				type: mongoose.Schema.Types.ObjectId,
+				ref: "User"
+			}]
+		},
 		verified: {
 			type: Boolean,
 			default: false

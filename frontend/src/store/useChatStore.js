@@ -3,6 +3,8 @@
 import toast from "react-hot-toast";
 import { axiosInstance } from "../utils/axios";
 import { create } from "zustand";
+import { useAuthStore } from "./useAuthStore";
+import { playNotification } from "../utils/notification";
 
 const displayError = (error) => {
 	const message = error.response?.data?.error || error.message;
@@ -159,6 +161,42 @@ export const useChatStore = create((set, get) => ({
 			toast.success(response.data.message);
 		} catch (error) {
 			displayError(error);
+		}
+	},
+	toggleUserMute: async (userId) => {
+		try {
+			const response = await axiosInstance.post(`/auth/notifications/mute/${userId}`);
+			set(state => ({
+				users: state.users.map(u =>
+					u._id === userId ? { ...u, isMuted: !u.isMuted } : u
+				),
+				selectedUser: state.selectedUser?._id === userId
+					? { ...state.selectedUser, isMuted: !state.selectedUser.isMuted }
+					: state.selectedUser
+			}));
+			toast.success(response.data.message);
+		} catch (error) {
+			displayError(error);
+		}
+	},
+
+	handleNewMessage: (message) => {
+		const { selectedUser, appendMessage } = get();
+		const { authUser } = useAuthStore.getState();
+
+		// Check if message is from current chat
+		if (selectedUser?._id === message.senderId) {
+			appendMessage({ ...message, status: 'read' });
+			return;
+		}
+
+		// Show notification if not in current chat
+		const user = get().users.find(u => u._id === message.senderId);
+		if (authUser?.notificationSettings?.enableNotifications && !user?.isMuted) {
+			toast(`New message from ${user?.username}`);
+			if (authUser?.notificationSettings?.enableSound) {
+				playNotification();
+			}
 		}
 	}
 }));
