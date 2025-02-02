@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useChatStore } from '../store/useChatStore';
-import UserCard from '../components/UserCard';
+import UserCard from '../components/contacts/UserCard';
 import { Search } from 'lucide-react';
 
 const ContactsPage = () => {

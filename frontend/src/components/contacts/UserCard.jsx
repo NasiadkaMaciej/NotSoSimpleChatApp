@@ -1,5 +1,5 @@
 import { Ban, Bell, BellOff } from 'lucide-react';
-import Avatar from './shared/Avatar';
+import Avatar from '../shared/Avatar';
 
 const UserCard = ({ user, onGroupToggle, onMuteToggle, onBlockToggle }) => {
 	const groups = ['Friends', 'Work', 'Family'];

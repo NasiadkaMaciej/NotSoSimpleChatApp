@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { MessageSquare, User, LogOut, Sun, Users } from "lucide-react";
 import { useAuthStore } from '../../store/useAuthStore';
+import { useChatStore } from '../../store/useChatStore';
 
 const themes = ["light", "dark", "cupcake", "bumblebee", "emerald", "corporate", "synthwave", "retro", "cyberpunk", "valentine", "halloween", "garden", "forest", "aqua", "lofi", "pastel", "fantasy", "wireframe", "black", "luxury", "dracula", "cmyk", "autumn", "business", "acid", "lemonade", "night", "coffee", "winter", "dim", "nord", "sunset"];
 
@@ -10,6 +11,7 @@ const Navbar = () => {
 	const { logout, authUser } = useAuthStore();
 	const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 	const dropdownRef = useRef(null); // Add ref for dropdown
+	const setSelectedUser = useChatStore((state) => state.setSelectedUser);
 
 	useEffect(() => { // Close dropdown when clicked outside
 		const handleClickOutside = (event) => {
@@ -48,6 +50,10 @@ const Navbar = () => {
 		setIsDropdownOpen(false);
 	};
 
+	const handleWelcomeChat = () => {
+		setSelectedUser(null);
+	};
+
 	const renderThemePreview = (theme) => {
 		return (
 			<div className={`flex items-center justify-center w-16 h-8 rounded-lg bg-base`} data-theme={theme}>
@@ -64,7 +70,7 @@ const Navbar = () => {
 			<div className="container mx-auto px-4 h-16">
 				<div className="flex items-center justify-between h-full">
 					<div className="flex items-center gap-8">
-						<Link to="/" className="flex items-center gap-2.5 hover:opacity-80 transition-all">
+						<Link to="/" onClick={handleWelcomeChat} className="flex items-center gap-2.5 hover:opacity-80 transition-all btn btn-ghost">
 							<div className="size-9 rounded-lg bg-primary/10 flex items-center justify-center">
 								<MessageSquare className="size-5 text-primary" />
 							</div>

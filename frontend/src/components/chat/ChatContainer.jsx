@@ -5,7 +5,7 @@ import { useAuthStore } from "../../store/useAuthStore";
 import ChatHeader from "./ChatHeader";
 import MessageInput from "./MessageInput";
 import UserProfile from "./UserProfile";
-import SearchBar from "../SearchBar";
+import SearchBar from "./SearchBar";
 import MessageBubble from "./MessageBubble";
 
 const ChatContainer = () => {
@@ -71,7 +71,7 @@ const ChatContainer = () => {
 	}
 
 	return (
-		<div className="flex-1 flex md:static fixed inset-0 bg-base-100 z-50">
+		<div className="flex-1 flex md:static fixed inset-0 bg-base-100 z-50 sm:z-50 md:z-0">
 			<div className="flex-1 flex flex-col">
 				<ChatHeader onSearchOpen={() => setIsSearchOpen(true)} />
 				{isSearchOpen && (
