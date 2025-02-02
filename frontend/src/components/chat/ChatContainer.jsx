@@ -89,33 +89,33 @@ const ChatContainer = () => {
 						onNextMatch={handleNextMatch}
 					/>
 				)}
-        <div className="flex-1 overflow-y-auto p-4">
-          {isMessagesLoading ? (
-            <div className="flex-1 flex items-center justify-center">
-              <Loader className="size-8 animate-spin" />
-            </div>
-          ) : messages.length > 0 ? (
-            <div className="space-y-4">
-              {messages.map((message, index) => (
-                <div key={message._id} data-message-index={index}>
-                  <MessageBubble
-								message={message}
-								isOwnMessage={message.senderId === authUser._id}
-								searchTerm={searchTerm}
-								isHighlighted={matchedMessages[currentMatch] === index}
-								/>
-								</div>
-							  ))}
-							  <div ref={messagesEndRef} />
-							</div>
-						  ) : (
-							<EmptyChat username={selectedUser?.username} />
-						  )}
+				<div className="flex-1 overflow-y-auto p-4">
+					{isMessagesLoading ? (
+						<div className="flex-1 flex items-center justify-center">
+							<Loader className="size-8 animate-spin" />
 						</div>
-						<MessageInput />
-					  </div>
-					  {isProfileOpen && <UserProfile />}
-					</div>
+					) : messages.length > 0 ? (
+						<div className="space-y-4">
+							{messages.map((message, index) => (
+								<div key={message._id} data-message-index={index}>
+									<MessageBubble
+										message={message}
+										isOwnMessage={message.senderId === authUser._id}
+										searchTerm={searchTerm}
+										isHighlighted={matchedMessages[currentMatch] === index}
+									/>
+								</div>
+							))}
+							<div ref={messagesEndRef} />
+						</div>
+					) : (
+						<EmptyChat username={selectedUser?.username} />
+					)}
+				</div>
+				<MessageInput />
+			</div>
+			{isProfileOpen && <UserProfile />}
+		</div>
 	);
 };
 
