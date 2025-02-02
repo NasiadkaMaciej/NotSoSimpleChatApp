@@ -199,7 +199,7 @@ const handleGroupMembership = async (userId, targetUserId, group, action) => {
 		);
 
 		// Toggle logic - if in group, remove; if not in group, add
-		if (isInGroup) {
+		if (isInGroup)
 			user.groups[group] = user.groups[group].filter(id =>
 				id.toString() !== targetUserId.toString()
 			);

@@ -1,5 +1,3 @@
-import notificationSound from '../assets/notification.mp3';
-
 export const requestNotificationPermission = async () => {
 	try {
 		if ('Notification' in window) {
@@ -11,9 +9,4 @@ export const requestNotificationPermission = async () => {
 		console.error('Error requesting notification permission:', error);
 		return false;
 	}
-};
-
-export const playNotification = () => {
-	const audio = new Audio(notificationSound);
-	audio.play().catch(err => console.error('Error playing notification:', err));
 };

@@ -1,7 +1,5 @@
 // frontend/src/hooks/useSocket.js
 import { useEffect } from 'react';
-import toast from 'react-hot-toast';
-import { playNotification } from '../utils/notification';
 
 export const useSocket = (authUser, handlers, socketRef) => {
 	useEffect(() => {

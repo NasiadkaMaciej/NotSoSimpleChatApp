@@ -63,10 +63,6 @@ const userSchema = new mongoose.Schema(
 				type: Boolean,
 				default: true
 			},
-			enableSound: {
-				type: Boolean,
-				default: false
-			},
 			mutedUsers: [{
 				type: mongoose.Schema.Types.ObjectId,
 				ref: "User",

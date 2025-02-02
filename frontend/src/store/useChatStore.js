@@ -1,5 +1,3 @@
-// Manages chat messages, users, and real-time message subscriptions
-
 import toast from "react-hot-toast";
 import { create } from "zustand";
 import { api } from "../services/api";
@@ -8,35 +6,35 @@ import { useAuthStore } from "./useAuthStore";
 const displayError = (error) => {
 	const message = error.response?.data?.error || error.message;
 	toast.error(message);
-	console.error("Error: ", message, error);
+	console.error("Error:", message, error);
 };
 
 export const useChatStore = create((set, get) => ({
+	// State
 	users: [],
+	messages: [],
+	searchResults: [],
+	onlineUsers: [],
 	selectedUser: null,
 	selectedUserRef: { current: null },
-	messages: [],
+	currentGroup: 'all', // 'all', 'friends', 'work', 'family'
 	isUsersLoading: false,
 	isMessagesLoading: false,
 	isProfileOpen: false,
-	onlineUsers: [],
 	showFriends: true,
-	currentGroup: 'all', // 'all', 'friends', 'work', 'family'
 	inChatPage: false,
-	// Search results
-	currentGroup: 'all',
-	searchResults: [],
 
-	setOnlineUsers: (users) => { set({ onlineUsers: users }) },
-	setProfileOpen: (isOpen) => { set({ isProfileOpen: isOpen }) },
-	toggleShowFriends: () => set(state => ({ showFriends: !state.showFriends })),
+	// UI State Setters
+	setOnlineUsers: (users) => set({ onlineUsers: users }),
+	setProfileOpen: (isOpen) => set({ isProfileOpen: isOpen }),
 	setInChatPage: (value) => set({ inChatPage: value }),
+	toggleShowFriends: () => set(state => ({ showFriends: !state.showFriends })),
 
+	// User Management
 	getUsers: async () => {
 		set({ isUsersLoading: true });
 		try {
-			const response = await api.users.get();
-			const users = response.data;
+			const { data: users } = await api.users.get();
 			set({ users });
 		} catch (error) {
 			displayError(error);
@@ -50,7 +48,6 @@ export const useChatStore = create((set, get) => ({
 		set({ selectedUser: user });
 		get().selectedUserRef.current = user;
 
-		// Mark messages as read when selecting user
 		if (user) {
 			window.io().emit("messageRead", {
 				senderId: user._id,
@@ -59,14 +56,14 @@ export const useChatStore = create((set, get) => ({
 		}
 	},
 
+	// Message Management
 	// ToDo: Cache messages to not load when switching
 	// ToDo: Pagination?
 	getMessages: async (userId) => {
 		set({ isMessagesLoading: true });
 		try {
-			const res = await api.messages.get(userId);
-			set({ messages: res.data });
-
+			const { data } = await api.messages.get(userId);
+			set({ messages: data });
 			// Mark messages as read when loading conversation
 			if (userId) {
 				window.io().emit("messageRead", {
@@ -81,72 +78,49 @@ export const useChatStore = create((set, get) => ({
 			set({ isMessagesLoading: false });
 		}
 	},
+
 	sendMessage: async (text, image) => {
 		const { selectedUser, messages } = get();
 		try {
 			const messageData = image ? { image } : { text };
-			const res = await api.messages.send(selectedUser._id, messageData);
-			set({ messages: [...messages, res.data] });
+			const { data } = await api.messages.send(selectedUser._id, messageData);
+			set({ messages: [...messages, data] });
 		} catch (error) {
 			displayError(error);
 		}
 	},
 
 	appendMessage: (message) => {
-		set((state) => {
-			const updatedMessages = [...state.messages];
-			updatedMessages.push(message);
-			return { messages: updatedMessages };
-		});
+		set((state) => ({
+			messages: [...state.messages, message]
+		}));
 	},
 
-	toggleGroupMembership: async (userId, group) => {
-		try {
-			// Optimistically update UI first
-			set(state => {
-				const propertyName = `is${group.charAt(0).toUpperCase() + group.slice(1)}`;
-				const users = state.users.map(u => {
-					if (u._id === userId) return { ...u, [propertyName]: !u[propertyName] };
-					return u;
+	handleNewMessage: (message) => {
+		const state = get();
+		const authUser = useAuthStore.getState().authUser;
+		const user = state.users.find(u => u._id === message.senderId);
+		const correctedSenderName = message.senderName || user?.username || 'Unknown User';
+		const isMuted = user?.isMuted;
+		const isCurrentChat = (
+			state.selectedUser?._id === message.senderId ||
+			state.selectedUser?._id === message.receiverId
+		);
+
+		// If chat is open and message belongs to current conversation
+		if (isCurrentChat && state.inChatPage) {
+			// Mark as read immediately if we're the receiver
+			if (message.receiverId === authUser._id)
+				window.io().emit("messageRead", {
+					senderId: message.senderId,
+					receiverId: authUser._id
 				});
-
-				const selectedUser = state.selectedUser?._id === userId
-					? { ...state.selectedUser, [propertyName]: !state.selectedUser[propertyName] }
-					: state.selectedUser;
-
-				return { users, selectedUser };
-			});
-
-			const response = await api.auth.groups(userId, { group });
-			toast.success(response.data.message);
-		} catch (error) {
-			// Revert optimistic update on error
-			set(state => {
-				const propertyName = `is${group.charAt(0).toUpperCase() + group.slice(1)}`;
-				const users = state.users.map(u => {
-					if (u._id === userId) {
-						return { ...u, [propertyName]: !u[propertyName] };
-					}
-					return u;
-				});
-
-				const selectedUser = state.selectedUser?._id === userId
-					? { ...state.selectedUser, [propertyName]: !state.selectedUser[propertyName] }
-					: state.selectedUser;
-
-				return { users, selectedUser };
-			});
-			toast.error('Failed to update group membership');
-		}
-	},
-
-	cycleSidebarGroup: () => {
-		set(state => {
-			const groups = ['all', 'friends', 'work', 'family'];
-			const currentIndex = groups.indexOf(state.currentGroup);
-			const nextGroup = groups[(currentIndex + 1) % groups.length];
-			return { currentGroup: nextGroup };
-		});
+			set(state => ({
+				messages: [...state.messages, { ...message, isRead: message.receiverId === authUser._id }]
+			}));
+			// Show notification only if we're the receiver, chat isn't open, and user isn't muted
+		} else if (message.receiverId === authUser._id && !isMuted)
+			toast(`New message from ${correctedSenderName}`);
 	},
 
 	updateMessageStatus: (data) => {
@@ -158,10 +132,42 @@ export const useChatStore = create((set, get) => ({
 			)
 		}));
 	},
+
+	// Group Management
+	cycleSidebarGroup: () => {
+		set(state => {
+			const groups = ['all', 'friends', 'work', 'family'];
+			const currentIndex = groups.indexOf(state.currentGroup);
+			return { currentGroup: groups[(currentIndex + 1) % groups.length] };
+		});
+	},
+
+	setContactsGroup: (group) => set({ currentGroup: group }),
+
+	toggleGroupMembership: async (userId, group) => {
+		try {
+			const { data } = await api.auth.groups(userId, { group });
+			const propertyName = `is${group.charAt(0).toUpperCase() + group.slice(1)}`;
+
+			set(state => ({
+				users: state.users.map(u =>
+					u._id === userId ? { ...u, [propertyName]: data[propertyName] } : u
+				),
+				selectedUser: state.selectedUser?._id === userId
+					? { ...state.selectedUser, [propertyName]: data[propertyName] }
+					: state.selectedUser
+			}));
+			toast.success(data.message);
+		} catch (error) {
+			displayError(error);
+		}
+	},
+
+	// User Actions
 	toggleBlockUser: async (userId) => {
 		try {
-			const response = await api.auth.block(userId);
-			const isBlocked = response.data.blockedUsers.includes(userId);
+			const { data } = await api.auth.block(userId);
+			const isBlocked = data.blockedUsers.includes(userId);
 
 			set(state => ({
 				users: state.users.map(u =>
@@ -171,18 +177,15 @@ export const useChatStore = create((set, get) => ({
 					? { ...state.selectedUser, isBlocked }
 					: state.selectedUser
 			}));
-
-			if (!isBlocked && get().selectedUser?._id === userId)
-				await get().getMessages(userId);
-
-			toast.success(response.data.message);
+			toast.success(data.message);
 		} catch (error) {
 			displayError(error);
 		}
 	},
+
 	toggleUserMute: async (userId) => {
 		try {
-			const response = await api.auth.notifications.mute(userId);
+			const { data } = await api.auth.notifications.mute(userId);
 			set(state => ({
 				users: state.users.map(u =>
 					u._id === userId ? { ...u, isMuted: !u.isMuted } : u
@@ -191,47 +194,13 @@ export const useChatStore = create((set, get) => ({
 					? { ...state.selectedUser, isMuted: !state.selectedUser.isMuted }
 					: state.selectedUser
 			}));
-			toast.success(response.data.message);
+			toast.success(data.message);
 		} catch (error) {
 			displayError(error);
 		}
 	},
 
-	handleNewMessage: (message) => {
-		const state = get();
-		const authUser = useAuthStore.getState().authUser;
-		const user = state.users.find(u => u._id === message.senderId);
-		const correctedSenderName = message.senderName || user?.username || 'Unknown User';
-		const isMuted = user?.isMuted;
-
-		// Check if message belongs to current chat
-		const isCurrentChat = (
-			state.selectedUser?._id === message.senderId ||
-			state.selectedUser?._id === message.receiverId
-		);
-
-		// If chat is open and message belongs to current conversation
-		if (isCurrentChat && state.inChatPage) {
-			// Mark as read immediately if we're the receiver
-			if (message.receiverId === authUser._id) {
-				window.io().emit("messageRead", {
-					senderId: message.senderId,
-					receiverId: authUser._id
-				});
-			}
-
-			set(state => ({
-				messages: [...state.messages, { ...message, isRead: message.receiverId === authUser._id }]
-			}));
-		} else if (message.receiverId === authUser._id && !isMuted) {
-			// Show notification only if we're the receiver, chat isn't open, and user isn't muted
-			toast(`New message from ${correctedSenderName}`);
-		}
-	},
-
-	// Contact search
-	setContactsGroup: (group) => set({ currentGroup: group }),
-
+	// Search
 	searchUsers: async (query) => {
 		if (!query.trim()) {
 			set({ searchResults: [] });
@@ -246,5 +215,4 @@ export const useChatStore = create((set, get) => ({
 			set({ searchResults: [] });
 		}
 	},
-
 }));

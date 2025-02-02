@@ -26,7 +26,6 @@ const ProfilePage = () => {
 	const [confirmNewPassword, setConfirmNewPassword] = useState("");
 	const [notificationSettings, setNotificationSettings] = useState({
 		enableNotifications: authUser?.notificationSettings?.enableNotifications ?? true,
-		enableSound: authUser?.notificationSettings?.enableSound ?? false,
 		mutedUsers: authUser?.notificationSettings?.mutedUsers ?? [] // Add this line
 	});
 	const [hasAudioPermission, setHasAudioPermission] = useState(false);
@@ -116,15 +115,6 @@ const ProfilePage = () => {
 	};
 
 	const handleNotificationToggle = async (setting) => {
-		if (setting === 'enableSound') {
-			const granted = await requestNotificationPermission();
-			if (!granted) {
-				toast.error('Audio permission is required for sound notifications');
-				return;
-			}
-			setHasAudioPermission(true);
-		}
-
 		const newSettings = { ...notificationSettings, [setting]: !notificationSettings[setting] };
 		setNotificationSettings(newSettings);
 
@@ -135,12 +125,6 @@ const ProfilePage = () => {
 			setNotificationSettings(notificationSettings);
 		}
 	};
-
-	const requestPermission = async () => {
-		const granted = await requestNotificationPermission();
-		setHasAudioPermission(granted);
-	};
-
 
 	return (
 		<div className="h-screen pt-20">
@@ -268,17 +252,6 @@ const ProfilePage = () => {
 										onChange={() => handleNotificationToggle('enableNotifications')}
 									/>
 									<span className="label-text">Enable notifications</span>
-								</label>
-							</div>
-							<div className="form-control">
-								<label className="label cursor-pointer justify-start gap-4">
-									<input
-										type="checkbox"
-										className="toggle toggle-primary"
-										checked={notificationSettings.enableSound}
-										onChange={() => handleNotificationToggle('enableSound')}
-									/>
-									<span className="label-text">Enable notification sound</span>
 								</label>
 							</div>
 						</div>

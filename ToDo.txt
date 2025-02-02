@@ -15,5 +15,4 @@ Store messages on browser to improve loading time
 Do not load all messages 
 Privacy option to hide online status 
 Clean code
-Verify notification sound permissions
 Allow to create and remove groups? 
