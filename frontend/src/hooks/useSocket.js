@@ -20,21 +20,5 @@ export const useSocket = (authUser, handlers, socketRef) => {
 				socketRef.current.on(event, handler);
 			});
 		}
-
-		// Handle window visibility
-		const handleVisibilityChange = () => {
-			if (socketRef.current) {
-				socketRef.current.emit('userStatus', {
-					userId: authUser._id,
-					isOnline: !document.hidden
-				});
-			}
-		};
-
-		document.addEventListener('visibilitychange', handleVisibilityChange);
-
-		return () => {
-			document.removeEventListener('visibilitychange', handleVisibilityChange);
-		};
 	}, [authUser?._id, handlers]);
 };

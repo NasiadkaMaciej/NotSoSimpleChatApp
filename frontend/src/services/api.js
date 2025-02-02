@@ -34,6 +34,5 @@ export const api = {
 	messages: {
 		send: (userId, data) => axiosInstance.post(`/message/send/${userId}`, data),
 		get: (userId) => axiosInstance.get(`/message/${userId}`),
-		search: (query) => axiosInstance.get(`/message/search?q=${query}`)
 	}
 };

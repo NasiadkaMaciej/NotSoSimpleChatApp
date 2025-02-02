@@ -28,7 +28,6 @@ const App = () => {
 	const { getUsers, setOnlineUsers, updateMessageStatus } = useChatStore();
 	const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
 	const socketRef = useRef(null);
-	const selectedUserRef = useRef(null);
 
 
 	// Check if user is authenticated
@@ -44,13 +43,6 @@ const App = () => {
 
 	// Initialize socket connection
 	useSocket(authUser, socketHandlers, socketRef);
-
-	useEffect(() => {
-		selectedUserRef.current = useChatStore.getState().selectedUser;
-		return useChatStore.subscribe(
-			state => selectedUserRef.current = state.selectedUser
-		);
-	}, []);
 
 	useEffect(() => {
 		if (authUser) getUsers();

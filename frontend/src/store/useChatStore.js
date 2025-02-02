@@ -16,19 +16,16 @@ export const useChatStore = create((set, get) => ({
 	searchResults: [],
 	onlineUsers: [],
 	selectedUser: null,
-	selectedUserRef: { current: null },
 	currentGroup: 'all', // 'all', 'friends', 'work', 'family'
 	isUsersLoading: false,
 	isMessagesLoading: false,
 	isProfileOpen: false,
-	showFriends: true,
 	inChatPage: false,
 
 	// UI State Setters
 	setOnlineUsers: (users) => set({ onlineUsers: users }),
 	setProfileOpen: (isOpen) => set({ isProfileOpen: isOpen }),
 	setInChatPage: (value) => set({ inChatPage: value }),
-	toggleShowFriends: () => set(state => ({ showFriends: !state.showFriends })),
 
 	// User Management
 	getUsers: async () => {
@@ -46,7 +43,6 @@ export const useChatStore = create((set, get) => ({
 
 	setSelectedUser: (user) => {
 		set({ selectedUser: user });
-		get().selectedUserRef.current = user;
 
 		if (user) {
 			window.io().emit("messageRead", {
@@ -88,12 +84,6 @@ export const useChatStore = create((set, get) => ({
 		} catch (error) {
 			displayError(error);
 		}
-	},
-
-	appendMessage: (message) => {
-		set((state) => ({
-			messages: [...state.messages, message]
-		}));
 	},
 
 	handleNewMessage: (message) => {

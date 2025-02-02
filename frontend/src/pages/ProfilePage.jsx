@@ -7,7 +7,6 @@ import FormInput from "../components/auth/FormInput";
 import Avatar from "../components/shared/Avatar";
 import Modal from "../components/shared/Modal";
 import { isPasswordValid } from "../../../backend/src/utils/validate";
-import { requestNotificationPermission } from "../utils/notification";
 import { api } from "../services/api";
 
 const MAX_ABOUT_LENGTH = 256;
@@ -28,7 +27,6 @@ const ProfilePage = () => {
 		enableNotifications: authUser?.notificationSettings?.enableNotifications ?? true,
 		mutedUsers: authUser?.notificationSettings?.mutedUsers ?? [] // Add this line
 	});
-	const [hasAudioPermission, setHasAudioPermission] = useState(false);
 
 
 	useEffect(() => {

@@ -214,10 +214,9 @@ const handleGroupMembership = async (userId, targetUserId, group, action) => {
 	}
 };
 
-// Update the updateGroupMembership function
 export const updateGroupMembership = async (req, res) => {
 	const { id: targetUserId } = req.params;
-	const { group } = req.body; // Remove action parameter since we're toggling
+	const { group } = req.body;
 	const userId = req.user._id;
 
 	try {
@@ -229,10 +228,10 @@ export const updateGroupMembership = async (req, res) => {
 		const user = await handleGroupMembership(userId, targetUserId, group);
 		const isInGroup = user.groups[group].some(id => id.toString() === targetUserId.toString());
 
+		const groupName = `is${group.charAt(0).toUpperCase() + group.slice(1)}`;
 		res.status(200).json({
 			message: `User ${isInGroup ? 'added to' : 'removed from'} ${group} group`,
-			groups: user.groups,
-			isInGroup
+			[groupName]: isInGroup
 		});
 	} catch (error) {
 		sendError(res, error, `group-toggle`);

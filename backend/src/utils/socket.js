@@ -13,8 +13,7 @@ const apiPort = process.env.API_PORT || 3005;
 
 const io = new Server(socketServer, {
 	cors: {
-		// ToDo: Is localhost needed?
-		origin: [`http://127.0.0.1:${apiPort}`, 'https://front.nasiadka.pl'],
+		origin: 'https://front.nasiadka.pl',
 		credentials: true,
 	},
 	path: '/socket.io/',
