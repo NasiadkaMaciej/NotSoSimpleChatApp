@@ -64,13 +64,12 @@ io.on("connection", async (socket) => {
 
 		// Notify sender
 		const senderSocketId = getReceiverSocketId(senderId);
-		if (senderSocketId) {
+		if (senderSocketId)
 			io.to(senderSocketId).emit("messageStatusUpdate", {
 				senderId,
 				receiverId,
 				isRead: true
 			});
-		}
 	});
 
 	socket.on("userStatus", async ({ userId, isOnline }) => {
@@ -85,10 +84,24 @@ io.on("connection", async (socket) => {
 	});
 	socket.on("newMessage", (message) => {
 		const receiverSocketId = getReceiverSocketId(message.receiverId);
-		if (receiverSocketId) {
+		if (receiverSocketId)
 			io.to(receiverSocketId).emit("newMessage", message);
-		}
 	});
+	socket.on("messageEdited", async ({ messageId, text, senderId, receiverId }) => {
+		const receiverSocketId = getReceiverSocketId(receiverId);
+		if (receiverSocketId)
+		  io.to(receiverSocketId).emit("messageEdited", {
+			messageId,
+			text,
+			isEdited: true
+		  });
+	  });
+	  
+	  socket.on("messageDeleted", async ({ messageId, senderId, receiverId }) => {
+		const receiverSocketId = getReceiverSocketId(receiverId);
+		if (receiverSocketId)
+		  io.to(receiverSocketId).emit("messageDeleted", { messageId });
+	  });
 });
 
 export function getReceiverSocketId(userId) {

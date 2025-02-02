@@ -34,5 +34,7 @@ export const api = {
 	messages: {
 		send: (userId, data) => axiosInstance.post(`/message/send/${userId}`, data),
 		get: (userId) => axiosInstance.get(`/message/${userId}`),
+		edit: (messageId, text) => axiosInstance.put(`/message/${messageId}`, { text }),
+		delete: (messageId) => axiosInstance.delete(`/message/${messageId}`),
 	}
 };

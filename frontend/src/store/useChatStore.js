@@ -123,6 +123,68 @@ export const useChatStore = create((set, get) => ({
 		}));
 	},
 
+	handleMessageEdit: (messageId, text, isEdited) => {
+		set(state => ({
+			messages: state.messages.map(msg =>
+				msg._id === messageId
+					? { ...msg, text, isEdited: true }
+					: msg
+			)
+		}));
+	},
+
+	handleMessageDelete: (messageId) => {
+		set(state => ({
+			messages: state.messages.filter(msg => msg._id !== messageId)
+		}));
+	},
+
+	editMessage: async (messageId, text) => {
+		try {
+		  const { selectedUser } = get();
+		  const { data } = await api.messages.edit(messageId, text);
+		  
+		  // Update local state first
+		  set(state => ({
+			messages: state.messages.map(msg =>
+			  msg._id === messageId ? { ...msg, text, isEdited: true } : msg
+			)
+		  }));
+	  
+		  // Emit socket event after successful API call
+		  window.io().emit("messageEdited", {
+			messageId,
+			text,
+			senderId: useAuthStore.getState().authUser._id,
+			receiverId: selectedUser._id
+		  });
+	  
+		  return data;
+		} catch (error) {
+		  throw error;
+		}
+	  },
+	  
+	  deleteMessage: async (messageId) => {
+		try {
+		  const { selectedUser } = get();
+		  await api.messages.delete(messageId);
+	  
+		  // Update local state first
+		  set(state => ({
+			messages: state.messages.filter(msg => msg._id !== messageId)
+		  }));
+	  
+		  // Emit socket event after successful API call
+		  window.io().emit("messageDeleted", {
+			messageId,
+			senderId: useAuthStore.getState().authUser._id,
+			receiverId: selectedUser._id
+		  });
+		} catch (error) {
+		  throw error;
+		}
+	},
 	// Group Management
 	cycleSidebarGroup: () => {
 		set(state => {

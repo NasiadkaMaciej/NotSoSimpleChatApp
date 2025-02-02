@@ -38,7 +38,13 @@ const App = () => {
 			useChatStore.getState().handleNewMessage(message);
 		},
 		getOnlineUsers: setOnlineUsers,
-		messageStatusUpdate: updateMessageStatus
+		messageStatusUpdate: updateMessageStatus,
+		messageEdited: ({ messageId, text, isEdited }) => {
+			useChatStore.getState().handleMessageEdit(messageId, text, isEdited);
+		},
+		messageDeleted: ({ messageId }) => {
+			useChatStore.getState().handleMessageDelete(messageId);
+		}
 	};
 
 	// Initialize socket connection

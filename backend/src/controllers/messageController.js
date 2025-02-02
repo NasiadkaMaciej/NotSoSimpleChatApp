@@ -104,3 +104,50 @@ export const sendMessage = async (req, res) => {
 		sendError(res, error, "sendMessage");
 	}
 };
+
+export const editMessage = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { text } = req.body;
+
+        const message = await Message.findById(id);
+        if (!message) return res.status(404).json({ error: "Message not found" });
+        
+        message.text = text;
+        message.isEdited = true;
+        await message.save();
+
+        const receiverSocketId = getReceiverSocketId(message.receiverId);
+        if (receiverSocketId)
+            io.to(receiverSocketId).emit("messageEdited", {
+                messageId: message._id,
+                text,
+                isEdited: true
+            });
+
+        res.status(200).json(message);
+    } catch (error) {
+        sendError(res, error, "editMessage");
+    }
+};
+
+export const deleteMessage = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const userId = req.user._id;
+
+        const message = await Message.findById(id);
+        if (!message) return res.status(404).json({ error: "Message not found" });
+
+        const receiverSocketId = getReceiverSocketId(message.receiverId);
+        if (receiverSocketId)
+            io.to(receiverSocketId).emit("messageDeleted", {
+                messageId: message._id
+            });
+
+        await message.deleteOne();
+        res.status(200).json({ message: "Message deleted successfully" });
+    } catch (error) {
+        sendError(res, error, "deleteMessage");
+    }
+};
