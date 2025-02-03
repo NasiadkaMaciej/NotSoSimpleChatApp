@@ -97,6 +97,8 @@ export const useChatStore = create((set, get) => ({
 			state.selectedUser?._id === message.receiverId
 		);
 
+		const notificationsEnabled = authUser?.notificationSettings?.enableNotifications;
+
 		// If chat is open and message belongs to current conversation
 		if (isCurrentChat && state.inChatPage) {
 			// Mark as read immediately if we're the receiver
@@ -108,9 +110,12 @@ export const useChatStore = create((set, get) => ({
 			set(state => ({
 				messages: [...state.messages, { ...message, isRead: message.receiverId === authUser._id }]
 			}));
-			// Show notification only if we're the receiver, chat isn't open, and user isn't muted
-		} else if (message.receiverId === authUser._id && !isMuted)
-			toast(`New message from ${correctedSenderName}`);
+
+		} else if (									// Show notification only if:
+			message.receiverId === authUser._id &&	// We're the receiver
+			!isMuted &&								// User isn't muted
+			notificationsEnabled					// Notifications are enabled
+		) toast(`New message from ${correctedSenderName}`);
 	},
 
 	updateMessageStatus: (data) => {
@@ -141,48 +146,48 @@ export const useChatStore = create((set, get) => ({
 
 	editMessage: async (messageId, text) => {
 		try {
-		  const { selectedUser } = get();
-		  const { data } = await api.messages.edit(messageId, text);
-		  
-		  // Update local state first
-		  set(state => ({
-			messages: state.messages.map(msg =>
-			  msg._id === messageId ? { ...msg, text, isEdited: true } : msg
-			)
-		  }));
-	  
-		  // Emit socket event after successful API call
-		  window.io().emit("messageEdited", {
-			messageId,
-			text,
-			senderId: useAuthStore.getState().authUser._id,
-			receiverId: selectedUser._id
-		  });
-	  
-		  return data;
+			const { selectedUser } = get();
+			const { data } = await api.messages.edit(messageId, text);
+
+			// Update local state first
+			set(state => ({
+				messages: state.messages.map(msg =>
+					msg._id === messageId ? { ...msg, text, isEdited: true } : msg
+				)
+			}));
+
+			// Emit socket event after successful API call
+			window.io().emit("messageEdited", {
+				messageId,
+				text,
+				senderId: useAuthStore.getState().authUser._id,
+				receiverId: selectedUser._id
+			});
+
+			return data;
 		} catch (error) {
-		  throw error;
+			throw error;
 		}
-	  },
-	  
-	  deleteMessage: async (messageId) => {
+	},
+
+	deleteMessage: async (messageId) => {
 		try {
-		  const { selectedUser } = get();
-		  await api.messages.delete(messageId);
-	  
-		  // Update local state first
-		  set(state => ({
-			messages: state.messages.filter(msg => msg._id !== messageId)
-		  }));
-	  
-		  // Emit socket event after successful API call
-		  window.io().emit("messageDeleted", {
-			messageId,
-			senderId: useAuthStore.getState().authUser._id,
-			receiverId: selectedUser._id
-		  });
+			const { selectedUser } = get();
+			await api.messages.delete(messageId);
+
+			// Update local state first
+			set(state => ({
+				messages: state.messages.filter(msg => msg._id !== messageId)
+			}));
+
+			// Emit socket event after successful API call
+			window.io().emit("messageDeleted", {
+				messageId,
+				senderId: useAuthStore.getState().authUser._id,
+				receiverId: selectedUser._id
+			});
 		} catch (error) {
-		  throw error;
+			throw error;
 		}
 	},
 	// Group Management
