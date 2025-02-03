@@ -177,7 +177,8 @@ export const updateCredentials = async (req, res) => {
 			username: user.username,
 			email: user.email,
 			avatarColor: user.avatarColor,
-			aboutMe: user.aboutMe
+			aboutMe: user.aboutMe,
+			notificationSettings: user.notificationSettings
 		});
 	} catch (error) {
 		sendError(res, error, "updateCredentials");

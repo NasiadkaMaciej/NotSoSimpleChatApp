@@ -1,17 +1,31 @@
 import { Ban, Bell, BellOff } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+
+import { useChatStore } from '../../store/useChatStore';
 import Avatar from '../shared/Avatar';
 
 const UserCard = ({ user, onGroupToggle, onMuteToggle, onBlockToggle }) => {
+	const navigate = useNavigate();
+	const setSelectedUser = useChatStore(state => state.setSelectedUser);
 	const groups = ['Friends', 'Work', 'Family'];
+
 
 	const handleGroupToggle = (userId, group) => {
 		onGroupToggle(userId, group.toLowerCase());
 	};
 
+	const handleOpenChat = () => {
+		setSelectedUser(user);
+		navigate('/');
+	};
+
 	return (
 		<div className="card bg-base-200 shadow-xl">
 			<div className="card-body flex-col sm:flex-row items-center gap-4">
-				<div className="flex items-center gap-4">
+				<div
+					className="flex items-center gap-4 cursor-pointer hover:opacity-80 transition-all"
+					onClick={handleOpenChat}
+				>
 					<Avatar color={user.avatarColor} size="12" />
 					<div>
 						<h3 className="font-bold">{user.username}</h3>

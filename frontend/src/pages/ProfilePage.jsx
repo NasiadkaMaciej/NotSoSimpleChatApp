@@ -65,13 +65,13 @@ const ProfilePage = () => {
 		}
 
 		try {
-			const res = await api.users.update({ newUsername });
+			const res = await api.users.updateCredentials({ newUsername });
 			toast.success("Username updated successfully");
 			setShowUpdateUsername(false);
 			setNewUsername("");
-			updateProfile(res.data);
+			updateProfile({ username: res.data.username });
 		} catch (error) {
-			toast.error(error.response?.data?.error || "Failed to update username");
+			toast.error(error || "Failed to update username");
 		}
 	};
 
@@ -91,7 +91,7 @@ const ProfilePage = () => {
 		}
 
 		try {
-			await api.auth.updateCredentials({ currentPassword, newPassword });
+			await api.users.updateCredentials({ currentPassword, newPassword });
 			toast.success("Password updated successfully");
 			setShowUpdatePassword(false);
 			setCurrentPassword("");

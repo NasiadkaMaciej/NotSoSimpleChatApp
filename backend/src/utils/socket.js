@@ -17,8 +17,12 @@ const io = new Server(socketServer, {
 		credentials: true,
 	},
 	path: '/socket.io/',
-	// ToDo: Is this needed?
-	transports: ['websocket', 'polling']
+	transports: ['websocket', 'polling'],
+	upgrade: false,
+	reconnection: true,
+	reconnectionAttempts: 5,
+	reconnectionDelay: 1000,
+	reconnectionDelayMax: 5000
 });
 
 // userID -> socketID
