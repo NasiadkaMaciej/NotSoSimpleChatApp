@@ -44,9 +44,7 @@ export const useAuthStore = create((updateState) => ({
 	
 			return true; // Indicate success to component
 		} catch (error) {
-			console.error("Signup error:", error);
-			const message = error.response?.data?.error || "Failed to create account";
-			toast.error(message);
+			displayError(error);
 			updateState({ 
 				isSigningUp: false,
 				signupSuccess: false 

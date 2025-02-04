@@ -87,5 +87,5 @@ export const sendVerificationEmail = async (email, token) => {
 
 	// PRODUCTION
 	// ToDo: Uncomment this line before deploying
-	//await transporter.sendMail(mailOptions);
+	await transporter.sendMail(mailOptions);
 };
