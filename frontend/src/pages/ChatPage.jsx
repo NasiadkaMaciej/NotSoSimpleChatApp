@@ -6,12 +6,7 @@ import ChatContainer from "../components/chat/ChatContainer";
 import WelcomeChat from "../components/chat/placeholders/WelcomeChat";
 
 const ChatPage = () => {
-	const { selectedUser, setInChatPage } = useChatStore();
-
-	useEffect(() => {
-		setInChatPage(true);
-		return () => setInChatPage(false);
-	}, [setInChatPage]);
+	const { selectedUser } = useChatStore();
 
 	return (
 		<div className="h-screen bg-base-200">

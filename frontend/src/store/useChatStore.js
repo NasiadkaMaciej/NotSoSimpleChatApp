@@ -25,7 +25,6 @@ export const useChatStore = create((set, get) => ({
 	// UI State Setters
 	setOnlineUsers: (users) => set({ onlineUsers: users }),
 	setProfileOpen: (isOpen) => set({ isProfileOpen: isOpen }),
-	setInChatPage: (value) => set({ inChatPage: value }),
 
 	// User Management
 	getUsers: async () => {
