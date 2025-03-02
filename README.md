@@ -2,6 +2,10 @@
 
 Welcome to the Not so simple Chat App! This is a real-time chat application built with modern web technologies. Feel free to visit and check the website at [front.nasiadka.pl](https://front.nasiadka.pl/)
 
+| Chat Screen | Login Page | Contacts |
+| - | - | - |
+| ![](https://nasiadka.pl/projects/SimpleChat/chat.png) | ![](https://nasiadka.pl/projects/SimpleChat/login.png) | ![](https://nasiadka.pl/projects/SimpleChat/contacts.png) |
+
 ## Features
 
 - User authentication (signup, login, logout) with email verification
@@ -18,17 +22,17 @@ Welcome to the Not so simple Chat App! This is a real-time chat application buil
 ### Frontend
 Built with React and Vite, featuring:
 
-| Technology        | Usage                                           |
-|------------------|--------------------------------------------------|
-| **React 18**     | Modern UI development with hooks and components  |
-| **Vite**         | Next-generation frontend tooling                 |
-| **Zustand**      | Simple and scalable state management             |
-| **React Router** | Client-side routing and navigation               |
-| **Axios**        | HTTP client for API requests                     |
-| **Socket.io**    | Real-time bidirectional communication            |
-| **TailwindCSS**  | Utility-first CSS framework                      |
-| **DaisyUI**      | Component library for Tailwind                   |
-| **Lucide**       | Modern icon library                              |
+| Technology        | Usage                                            |
+|-------------------|--------------------------------------------------|
+| **React 18**      | Modern UI development with hooks and components  |
+| **Vite**          | Next-generation frontend tooling                 |
+| **Zustand**       | Simple and scalable state management             |
+| **React Router**  | Client-side routing and navigation               |
+| **Axios**         | HTTP client for API requests                     |
+| **Socket.io**     | Real-time bidirectional communication            |
+| **TailwindCSS**   | Utility-first CSS framework                      |
+| **DaisyUI**       | Component library for Tailwind                   |
+| **Lucide**        | Modern icon library                              |
 
 ## Backend
 
