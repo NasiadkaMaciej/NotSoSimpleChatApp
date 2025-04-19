@@ -1,18 +1,12 @@
-Frontend 
 Backend tests 
-Pasword Reset? 
 Group Chats? 
-User avatars next to bubbles
-ENV for ports
-Make error logging more uniform 
-Add option to chat with AI 
-Make styles more uniform 
-Clean console.logs 
-Add isTyping and show if user isTyping? 
+User avatars
+Uniform error logging on FrontEnd 
+Uniform styling
+Display typing status
 Attach nginx config? 
 No animation when loading new message? 
-Store messages on browser to improve loading time 
-Do not load all messages 
+Load messages by parts
 Privacy option to hide online status 
 Clean code
-Allow to create and remove groups? 
+Social media login
