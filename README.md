@@ -4,7 +4,7 @@ Welcome to the Not so simple Chat App! This is a real-time chat application buil
 
 | Chat Screen | Login Page | Contacts |
 | - | - | - |
-| ![](https://nasiadka.pl/projects/SimpleChat/chat.png) | ![](https://nasiadka.pl/projects/SimpleChat/login.png) | ![](https://nasiadka.pl/projects/SimpleChat/contacts.png) |
+| ![](https://nasiadka.pl/project/not-simple-chat/chat.png) | ![](https://nasiadka.pl/project/not-simple-chat/login.png) | ![](https://nasiadka.pl/project/not-simple-chat/contacts.png) |
 
 ## Features
 
